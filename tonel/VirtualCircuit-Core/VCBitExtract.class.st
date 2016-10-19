@@ -1,0 +1,46 @@
+Class {
+	#name : #VCBitExtract,
+	#superclass : #VCVariable,
+	#instVars : [
+		'wire',
+		'index',
+		'count'
+	],
+	#category : #'VirtualCircuit-Core-Circuit'
+}
+
+{ #category : #visualization }
+VCBitExtract >> addRoassalEdgesFrom: element toView: view [
+	super addRoassalEdgesFrom: element toView: view.
+	view add: (RTLine edgeFrom: element to: (view elementFromModel: wire))
+]
+
+{ #category : #accessing }
+VCBitExtract >> count [
+	^ count
+]
+
+{ #category : #accessing }
+VCBitExtract >> count: anObject [
+	count := anObject
+]
+
+{ #category : #accessing }
+VCBitExtract >> index [
+	^ index
+]
+
+{ #category : #accessing }
+VCBitExtract >> index: anObject [
+	index := anObject
+]
+
+{ #category : #accessing }
+VCBitExtract >> wire [
+	^ wire
+]
+
+{ #category : #accessing }
+VCBitExtract >> wire: anObject [
+	wire := anObject
+]
