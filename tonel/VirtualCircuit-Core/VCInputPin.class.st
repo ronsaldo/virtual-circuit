@@ -4,9 +4,14 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #'as yet unclassified' }
+VCInputPin >> accept: aVisitor [
+	^ aVisitor visitInputPin: self
+]
+
 { #category : #converting }
 VCInputPin >> asInstancePin [
-	^ (self as: VCOutputPin) value: nil; yourself.
+	^ (self as: VCInstanceInputPin) value: nil; yourself.
 ]
 
 { #category : #testing }

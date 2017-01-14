@@ -7,7 +7,12 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #visiting }
+VCBitPack >> accept: aVisitor [
+	^ aVisitor visitBitPack: self
+]
+
+{ #category : #visualization }
 VCBitPack >> addRoassalEdgesFrom: element toView: view [
 	| wireElements |
 	super addRoassalEdgesFrom: element toView: view.

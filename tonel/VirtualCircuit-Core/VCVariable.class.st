@@ -3,7 +3,8 @@ Class {
 	#superclass : #VCElement,
 	#instVars : [
 		'bits',
-		'value'
+		'value',
+		'isRegister'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -102,12 +103,28 @@ VCVariable >> bits: anObject [
 VCVariable >> initialize [
 	super initialize.
 	bits := 1.
+	isRegister := false
 	
+]
+
+{ #category : #accessing }
+VCVariable >> isRegister [
+	^ isRegister
+]
+
+{ #category : #accessing }
+VCVariable >> isRegister: anObject [
+	isRegister := anObject
 ]
 
 { #category : #'logical operations' }
 VCVariable >> not [
 	^ self bitInvert
+]
+
+{ #category : #'tools registry' }
+VCVariable >> register [
+	isRegister := true
 ]
 
 { #category : #accessing }
@@ -118,6 +135,11 @@ VCVariable >> value [
 { #category : #accessing }
 VCVariable >> value: anObject [
 	value := anObject
+]
+
+{ #category : #accessing }
+VCVariable >> wire [
+	isRegister := false
 ]
 
 { #category : #'logical operations' }

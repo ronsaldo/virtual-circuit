@@ -9,6 +9,11 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #visiting }
+VCBitExtract >> accept: aVisitor [
+	^ aVisitor visitBitExtract: self
+]
+
 { #category : #visualization }
 VCBitExtract >> addRoassalEdgesFrom: element toView: view [
 	super addRoassalEdgesFrom: element toView: view.

@@ -33,6 +33,11 @@ VCComponent class >> name: aName cacheClass: cacheClass cacheSelector: cacheSele
 	
 ]
 
+{ #category : #visiting }
+VCComponent >> accept: aVisitor [
+	^ aVisitor visitComponent: self
+]
+
 { #category : #caching }
 VCComponent >> addAsDependency [
 	cacheClass ifNil: [ ^ self ].
@@ -91,6 +96,11 @@ VCComponent >> cacheSelector: anObject [
 	cacheSelector := anObject
 ]
 
+{ #category : #accessing }
+VCComponent >> elements [
+	^ elements
+]
+
 { #category : #caching }
 VCComponent >> flushCache [
 	cacheClass ifNotNil: [
@@ -124,6 +134,23 @@ VCComponent >> makeInstance [
 { #category : #accessing }
 VCComponent >> pins [
 	^ pins
+]
+
+{ #category : #synthesis }
+VCComponent >> synthesizeWith: synthesizer [
+	^ synthesizer synthesizeComponent: self
+]
+
+{ #category : #synthesis }
+VCComponent >> verilog [
+	^ VCSynthesizerVerilog synthesize: self
+]
+
+{ #category : #synthesis }
+VCComponent >> verilogToFileNamed: fileName [
+	| code |
+	code := self verilog.
+	fileName asFileReference writeStreamDo: [ :out | out truncate; nextPutAll: code ]
 ]
 
 { #category : #visualization }

@@ -26,6 +26,11 @@ VCLogicalOperation class >> operation: operation bits: bits operand: operand [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+VCLogicalOperation >> accept: aVisitor [
+	^ aVisitor visitLogicalOperation: self
+]
+
 { #category : #visualization }
 VCLogicalOperation >> addRoassalEdgesFrom: element toView: view [
 	| operandElements |

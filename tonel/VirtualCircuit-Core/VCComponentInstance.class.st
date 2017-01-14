@@ -8,6 +8,11 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #visiting }
+VCComponentInstance >> accept: aVisitor [
+	^ aVisitor visitComponentInstance: self
+]
+
 { #category : #visualization }
 VCComponentInstance >> addRoassalEdgesFrom: element toView: view [
 	super addRoassalEdgesFrom: element toView: view.
@@ -59,6 +64,7 @@ VCComponentInstance >> isComponentInstance [
 VCComponentInstance >> pin: pinName [
 	^ pins at: pinName ifAbsentPut: [ 
 		(baseComponent pins at: pinName) asInstancePin
+			instance: self;
 			owner: self owner;
 			yourself
 	]
@@ -104,4 +110,9 @@ VCComponentInstance >> roassalElementForView: view [
 
 	RTNest new on: rtElement nest: pinElements.
 	^ rtElement
+]
+
+{ #category : #synthesis }
+VCComponentInstance >> synthesizeWith: synthesizer [
+	^ synthesizer synthesizeComponentInstance: self
 ]
