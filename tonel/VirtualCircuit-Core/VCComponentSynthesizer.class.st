@@ -12,10 +12,16 @@ Class {
 		'instantiatedElements',
 		'gensymCount',
 		'submodules',
-		'wireAssignments'
+		'wireAssignments',
+		'registerAssignments'
 	],
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
+
+{ #category : #'as yet unclassified' }
+VCComponentSynthesizer >> addRegister: registerName assignment: value onClock: clockName [
+	registerAssignments add: { registerName . value . clockName }
+]
 
 { #category : #adding }
 VCComponentSynthesizer >> addWire: wireName assignment: value [
@@ -54,7 +60,7 @@ VCComponentSynthesizer >> getOrCreateVariableName: variable [
 			wires add: variable
 		].
 	
-		self generateSymbolPrefix: '_local'
+		self generateSymbolPrefix: (variable name ifNil: ['_local'])
 	]
 ]
 
@@ -77,6 +83,7 @@ VCComponentSynthesizer >> initialize [
 	submodules := OrderedCollection new.
 	instantiatedElements := Dictionary new.
 	wireAssignments := OrderedCollection new.
+	registerAssignments := OrderedCollection new.
 	gensymCount := 0.
 ]
 
@@ -104,7 +111,8 @@ VCComponentSynthesizer >> setVariable: variable value: value [
 	| variableName |
 	variableName := self getOrCreateVariableName: variable.
 	variable isRegister ifTrue: [
-		self halt.
+		variable clock ifNil: [ self error: 'Cannot assign register without a connected clock.' ].
+		self addRegister: variableName assignment: value onClock: (self declareValue: variable clock)
 	] ifFalse: [
 		self addWire: variableName assignment: value
 	].
@@ -177,4 +185,11 @@ VCComponentSynthesizer >> visitLogicalOperation: logicalOperation [
 	^ self
 		setVariable: logicalOperation
 		value: (self emitLogicalOperation: logicalOperation operation operands: (logicalOperation operands collect: [ :op | self declareValue: op ]))
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitRegister: register [
+	^ self
+		setVariable: register
+		value: (self declareValue: register value)
 ]

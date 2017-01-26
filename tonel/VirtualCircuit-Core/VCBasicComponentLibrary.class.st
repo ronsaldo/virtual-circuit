@@ -81,3 +81,35 @@ VCBasicComponentLibrary >> adderSubtractor: bitCount [
 			output: #carry value: adders last carry
 	]
 ]
+
+{ #category : #'flip flops' }
+VCBasicComponentLibrary >> data [
+	| d q nq reg |
+	^ self componentBuild: [ :builder |
+		builder autoClock.
+		
+		d := builder input: #d.
+		
+		reg := builder register.
+		reg value: d.
+		
+		q := builder output: #q value: reg.
+		nq := builder output: #nq value: reg not.
+	]
+]
+
+{ #category : #'flip flops' }
+VCBasicComponentLibrary >> data: bits [
+	| d q nq reg |
+	^ self componentBuild: [ :builder |
+		builder autoClock.
+		
+		d := builder input: #d bits: bits.
+		
+		reg := builder register: bits.
+		reg value: d.
+		
+		q := builder output: #q value: reg.
+		nq := builder output: #nq value: reg not.
+	]
+]

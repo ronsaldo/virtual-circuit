@@ -6,7 +6,9 @@ Class {
 		'cacheClass',
 		'dependents',
 		'pins',
-		'elements'
+		'elements',
+		'autoClock',
+		'clockPin'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -15,6 +17,11 @@ Class {
 VCComponent class >> build: aBlock [
 	^ self new build: aBlock
 	
+]
+
+{ #category : #'as yet unclassified' }
+VCComponent class >> defaultClockPinName [
+	^ #clock
 ]
 
 { #category : #building }
@@ -54,6 +61,10 @@ VCComponent >> addDependent: aComponent [
 VCComponent >> addElement: element [
 	element owner: self.
 	elements add: element.
+	(element needsClock and: [ self isAutoClock ])ifTrue: [
+		self connectClockTo: element.
+	].
+
 	^ element
 ]
 
@@ -62,9 +73,22 @@ VCComponent >> addPin: pin [
 	pins at: pin name ifPresent: [
 		self error: 'Trying to override existing pin named: ' , pin name.
 	] ifAbsentPut: [ pin ].
+
+	pin name == #clock ifTrue: [ needsClock := true ].
 	
 	pin component: self.
 	^ self addElement: pin
+]
+
+{ #category : #clock }
+VCComponent >> autoClock [
+	self autoClock: self class defaultClockPinName.
+]
+
+{ #category : #clock }
+VCComponent >> autoClock: clockPinName [
+	autoClock := true.
+	self ensureClockPin: clockPinName.
 ]
 
 { #category : #building }
@@ -97,8 +121,37 @@ VCComponent >> cacheSelector: anObject [
 ]
 
 { #category : #accessing }
+VCComponent >> clockPin [
+	^ clockPin
+]
+
+{ #category : #accessing }
+VCComponent >> clockPin: anObject [
+	clockPin := anObject
+]
+
+{ #category : #clock }
+VCComponent >> connectClockTo: aComponent [
+	self assert: clockPin isNotNil.
+	aComponent clock: clockPin
+]
+
+{ #category : #accessing }
 VCComponent >> elements [
 	^ elements
+]
+
+{ #category : #clock }
+VCComponent >> ensureClockPin [
+	^ self ensureClockPin: self class defaultClockPinName
+]
+
+{ #category : #clock }
+VCComponent >> ensureClockPin: pinName [
+	clockPin ifNotNil: [ ^ clockPin ].
+	clockPin := self addPin: (VCInputPin new name: pinName; bits: 1; yourself).
+	self assert: self needsClock.
+	^ clockPin
 ]
 
 { #category : #caching }
@@ -119,6 +172,12 @@ VCComponent >> initialize [
 	pins := Dictionary new.
 	elements := OrderedCollection new.
 	dependents := Set new.
+	autoClock := false.
+]
+
+{ #category : #clock }
+VCComponent >> isAutoClock [
+	^ autoClock
 ]
 
 { #category : #testing }
@@ -129,6 +188,11 @@ VCComponent >> isComponent [
 { #category : #building }
 VCComponent >> makeInstance [
 	^ VCComponentInstance new baseComponent: self
+]
+
+{ #category : #clock }
+VCComponent >> needsClock [
+	^ clockPin isNotNil
 ]
 
 { #category : #accessing }

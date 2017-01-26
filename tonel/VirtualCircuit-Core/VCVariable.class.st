@@ -3,8 +3,7 @@ Class {
 	#superclass : #VCElement,
 	#instVars : [
 		'bits',
-		'value',
-		'isRegister'
+		'value'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -107,14 +106,9 @@ VCVariable >> initialize [
 	
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 VCVariable >> isRegister [
 	^ isRegister
-]
-
-{ #category : #accessing }
-VCVariable >> isRegister: anObject [
-	isRegister := anObject
 ]
 
 { #category : #'logical operations' }

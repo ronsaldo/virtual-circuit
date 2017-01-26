@@ -37,6 +37,11 @@ VCElement >> name: anObject [
 	name := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+VCElement >> needsClock [
+	^ false
+]
+
 { #category : #accessing }
 VCElement >> owner [
 	^ owner

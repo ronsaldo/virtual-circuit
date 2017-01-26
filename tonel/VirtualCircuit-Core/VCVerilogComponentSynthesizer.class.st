@@ -32,6 +32,11 @@ VCVerilogComponentSynthesizer >> bitCountFor: variable [
 	]
 ]
 
+{ #category : #'as yet unclassified' }
+VCVerilogComponentSynthesizer >> clockVariableName [
+	^ #_clock_
+]
+
 { #category : #'code generation' }
 VCVerilogComponentSynthesizer >> emitBit: index count: count extract: wire [
 	^ ByteString streamContents: [ :out |
@@ -75,6 +80,7 @@ VCVerilogComponentSynthesizer >> emitFinalContent [
 		self emitWires: out.
 		self emitSubmodules: out.
 		self emitWireAssignments: out.
+		self emitRegisterAssignments: out.
 		
 		out nextPutAll: 'endmodule'; lf
 	]
@@ -115,7 +121,31 @@ VCVerilogComponentSynthesizer >> emitOutputsInto: out [
 ]
 
 { #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRegisterAssignments: out [
+	registerAssignments ifEmpty: [ ^ self ].
+	
+	registerAssignments do: [ :registerAssignment |
+		out tab;
+			nextPutAll: 'always @(posedge ';
+			nextPutAll: registerAssignment third;
+			nextPutAll: ') ';
+			nextPutAll: registerAssignment first;
+			nextPutAll: ' <= ';
+			nextPutAll: registerAssignment second;
+			nextPutAll: ';';
+			lf
+	].
+
+	out lf.
+	 
+]
+
+{ #category : #'code generation' }
 VCVerilogComponentSynthesizer >> emitRegisters: out [
+	registers do: [ :register |
+		out tab; nextPutAll: 'reg '; nextPutAll: (self bitCountFor: register); nextPutAll: (instantiatedElements at: register); nextPut: $;; lf.
+	].
+	registers ifNotEmpty: [ out lf ].
 ]
 
 { #category : #'code generation' }
@@ -124,6 +154,7 @@ VCVerilogComponentSynthesizer >> emitSubmodule: submodule into: out [
 	module := instantiatedElements at: submodule baseComponent.
 	instanceName := instantiatedElements at: submodule.
 	out tab; nextPutAll: module name; space; nextPutAll: instanceName ; nextPutAll: ' ('; lf.
+	submodule needsClock ifTrue: [ self halt ].
 	submodule pins doWithIndex: [ :pin :index|
 		out tab; tab; nextPut: $.; nextPutAll: pin name;
 			nextPut: $(; nextPutAll: (instantiatedElements at: pin); nextPut: $).

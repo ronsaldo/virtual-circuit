@@ -60,6 +60,11 @@ VCComponentInstance >> isComponentInstance [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+VCComponentInstance >> needsClock [
+	^ baseComponent needsClock
+]
+
 { #category : #'pin connection' }
 VCComponentInstance >> pin: pinName [
 	^ pins at: pinName ifAbsentPut: [ 

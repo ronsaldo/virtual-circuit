@@ -7,6 +7,16 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #clock }
+VCComponentBuilder >> autoClock [
+	^ component autoClock
+]
+
+{ #category : #clock }
+VCComponentBuilder >> clock [
+	^ component ensureClockPin
+]
+
 { #category : #accessing }
 VCComponentBuilder >> component [
 	^ component
@@ -101,4 +111,16 @@ VCComponentBuilder >> pack: elements [
 { #category : #packing }
 VCComponentBuilder >> pack: elements with: aBlock [
 	^ self pack: (elements collect: aBlock)
+]
+
+{ #category : #registers }
+VCComponentBuilder >> register [
+	^ self register: 1
+]
+
+{ #category : #registers }
+VCComponentBuilder >> register: bits [
+	^ component addElement: (VCRegister new
+		bits: bits;
+		yourself)
 ]
