@@ -32,6 +32,7 @@ VCComponentSynthesizer >> addWire: wireName assignment: value [
 VCComponentSynthesizer >> declareValue: value [
 	value ifNil: [ ^ nil ].
 	instantiatedElements at: value ifPresent: [ :varName | ^ varName ].
+	value isVariable ifTrue: [ self getOrCreateVariableName: value ].
 	^ value accept: self
 ]
 
@@ -42,6 +43,11 @@ VCComponentSynthesizer >> emitBit: index count: count extract: wire [
 
 { #category : #'code generation' }
 VCComponentSynthesizer >> emitBitPack: values [
+	self subclassResponsibility
+]
+
+{ #category : #'code generation' }
+VCComponentSynthesizer >> emitSelectCondition: condition trueValue: trueValue falseValue: falseValue [
 	self subclassResponsibility
 ]
 
@@ -192,4 +198,14 @@ VCComponentSynthesizer >> visitRegister: register [
 	^ self
 		setVariable: register
 		value: (self declareValue: register value)
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitSelectCondition: selectCondition [
+	^ self
+		setVariable: selectCondition
+		value: (self
+			emitSelectCondition: (self declareValue: selectCondition condition)
+			trueValue: (self declareValue: selectCondition trueValue)
+			falseValue: (self declareValue: selectCondition falseValue))
 ]

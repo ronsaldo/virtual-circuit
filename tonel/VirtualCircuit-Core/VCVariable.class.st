@@ -1,6 +1,6 @@
 Class {
 	#name : #VCVariable,
-	#superclass : #VCElement,
+	#superclass : #VCExpression,
 	#instVars : [
 		'bits',
 		'value'
@@ -98,27 +98,47 @@ VCVariable >> bits: anObject [
 	bits := anObject
 ]
 
+{ #category : #'logical operations' }
+VCVariable >> ifFalse: falseValue ifTrue: trueValue [
+	self assert: bits = 1.
+	"Mux"
+	^ owner addElement: (VCSelectCondition new
+		condition: self;
+		trueValue: trueValue;
+		falseValue: falseValue;
+		yourself)
+]
+
+{ #category : #'logical operations' }
+VCVariable >> ifTrue: trueValue ifFalse: falseValue [
+	self assert: bits = 1.
+	"Mux"
+	^ owner addElement: (VCSelectCondition new
+		condition: self;
+		trueValue: trueValue;
+		falseValue: falseValue;
+		yourself)
+]
+
 { #category : #initialization }
 VCVariable >> initialize [
 	super initialize.
 	bits := 1.
-	isRegister := false
-	
 ]
 
 { #category : #testing }
 VCVariable >> isRegister [
-	^ isRegister
+	^ false
+]
+
+{ #category : #testing }
+VCVariable >> isVariable [
+	^ true
 ]
 
 { #category : #'logical operations' }
 VCVariable >> not [
 	^ self bitInvert
-]
-
-{ #category : #'tools registry' }
-VCVariable >> register [
-	isRegister := true
 ]
 
 { #category : #accessing }
@@ -129,6 +149,20 @@ VCVariable >> value [
 { #category : #accessing }
 VCVariable >> value: anObject [
 	value := anObject
+]
+
+{ #category : #conditions }
+VCVariable >> whenFalseDo: actions [
+	self assert: bits = 1.
+	^ self not whenTrueDo: actions
+]
+
+{ #category : #conditions }
+VCVariable >> whenTrueDo: actions [
+	self assert: bits = 1.
+	actions do: [ :action |
+		action on: self applyInComponent: owner
+	]
 ]
 
 { #category : #accessing }

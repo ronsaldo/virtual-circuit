@@ -84,18 +84,7 @@ VCBasicComponentLibrary >> adderSubtractor: bitCount [
 
 { #category : #'flip flops' }
 VCBasicComponentLibrary >> data [
-	| d q nq reg |
-	^ self componentBuild: [ :builder |
-		builder autoClock.
-		
-		d := builder input: #d.
-		
-		reg := builder register.
-		reg value: d.
-		
-		q := builder output: #q value: reg.
-		nq := builder output: #nq value: reg not.
-	]
+	^ self data: 1
 ]
 
 { #category : #'flip flops' }
@@ -111,5 +100,48 @@ VCBasicComponentLibrary >> data: bits [
 		
 		q := builder output: #q value: reg.
 		nq := builder output: #nq value: reg not.
+	]
+]
+
+{ #category : #'shift registers' }
+VCBasicComponentLibrary >> latchedSipo: bitWidth [
+	| input previousStage bits load latchedBits |
+	^ self componentBuild: [ :builder |
+		builder autoClock.
+		
+		input := builder input: #in.
+	
+		previousStage := input.
+		bits := (1 to: bitWidth) collect: [ :i |
+			previousStage := builder register value: previousStage.
+		].
+	
+		load := builder input: #load.
+		latchedBits := bits collect: [ :bit |
+			builder register clock: load; value: bit; yourself.
+		].
+	
+		builder
+			output: #next value: previousStage;
+			output: #out bits: bitWidth value: (builder pack: latchedBits).
+	]
+]
+
+{ #category : #'shift registers' }
+VCBasicComponentLibrary >> sipo: bitWidth [
+	| input previousStage bits |
+	^ self componentBuild: [ :builder |
+		builder autoClock.
+		
+		input := builder input: #in.
+	
+		previousStage := input.
+		bits := (1 to: bitWidth) collect: [ :i |
+			previousStage := builder register value: previousStage.
+		].
+	
+		builder
+			output: #next value: previousStage;
+			output: #out bits: bitWidth value: (builder pack: bits).
 	]
 ]

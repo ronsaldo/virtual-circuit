@@ -23,6 +23,16 @@ VCElement >> isComponentInstance [
 ]
 
 { #category : #testing }
+VCElement >> isExpression [
+	^ false
+]
+
+{ #category : #testing }
+VCElement >> isVariable [
+	^ false
+]
+
+{ #category : #testing }
 VCElement >> isVirtualCircuitElement [
 	^ true
 ]
@@ -37,7 +47,7 @@ VCElement >> name: anObject [
 	name := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
 VCElement >> needsClock [
 	^ false
 ]

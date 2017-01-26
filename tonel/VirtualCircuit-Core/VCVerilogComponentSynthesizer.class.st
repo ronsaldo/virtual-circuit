@@ -149,6 +149,19 @@ VCVerilogComponentSynthesizer >> emitRegisters: out [
 ]
 
 { #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitSelectCondition: condition trueValue: trueValue falseValue: falseValue [
+	^ ByteString streamContents: [ :out |
+		out nextPutAll: '(';
+			nextPutAll: condition;
+			nextPutAll: ') ? (';
+			nextPutAll: trueValue;
+			nextPutAll: ') : (';
+			nextPutAll: falseValue;
+			nextPutAll: ')'
+	]
+]
+
+{ #category : #'code generation' }
 VCVerilogComponentSynthesizer >> emitSubmodule: submodule into: out [
 	| instanceName module |
 	module := instantiatedElements at: submodule baseComponent.
