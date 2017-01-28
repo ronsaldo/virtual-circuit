@@ -13,6 +13,11 @@ VCElement >> addRoassalEdgesFrom: element toView: view [
 ]
 
 { #category : #testing }
+VCElement >> hasReset [
+	^ false
+]
+
+{ #category : #testing }
 VCElement >> isComponent [
 	^ false
 ]
@@ -25,6 +30,21 @@ VCElement >> isComponentInstance [
 { #category : #testing }
 VCElement >> isExpression [
 	^ false
+]
+
+{ #category : #testing }
+VCElement >> isRegister [
+	^ false
+]
+
+{ #category : #testing }
+VCElement >> isResetActiveHigh [
+	^ false
+]
+
+{ #category : #testing }
+VCElement >> isResetActiveLow [
+	^ true
 ]
 
 { #category : #testing }

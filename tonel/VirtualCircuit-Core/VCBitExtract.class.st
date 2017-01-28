@@ -1,6 +1,6 @@
 Class {
 	#name : #VCBitExtract,
-	#superclass : #VCVariable,
+	#superclass : #VCExpression,
 	#instVars : [
 		'wire',
 		'index',

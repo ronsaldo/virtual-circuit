@@ -32,6 +32,11 @@ VCRegister >> clock: anObject [
 	clock := anObject
 ]
 
+{ #category : #testing }
+VCRegister >> hasReset [
+	^ true
+]
+
 { #category : #initialization }
 VCRegister >> initialize [
 	"Registers by default tend to keep their values."

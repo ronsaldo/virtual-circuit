@@ -48,6 +48,11 @@ VCComponentInstance >> doesNotUnderstand: aMessage [
 	^ pin
 ]
 
+{ #category : #'as yet unclassified' }
+VCComponentInstance >> hasReset [
+	^ baseComponent hasReset
+]
+
 { #category : #initialization }
 VCComponentInstance >> initialize [
 	super initialize.

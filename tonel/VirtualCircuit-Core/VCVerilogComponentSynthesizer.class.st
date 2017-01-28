@@ -105,9 +105,6 @@ VCVerilogComponentSynthesizer >> emitLogicalOperation: operation operands: opera
 	operands size = 2 ifTrue: [ 
 		^ operands first , (BinaryOperationMap at: operation) , operands second
 	].
-	operands size = 3 ifTrue: [ 
-		self halt.
-	].
 	self error: 'Unsupported logical operation arity.'
 ]
 
@@ -125,15 +122,58 @@ VCVerilogComponentSynthesizer >> emitRegisterAssignments: out [
 	registerAssignments ifEmpty: [ ^ self ].
 	
 	registerAssignments do: [ :registerAssignment |
-		out tab;
-			nextPutAll: 'always @(posedge ';
-			nextPutAll: registerAssignment third;
-			nextPutAll: ') ';
-			nextPutAll: registerAssignment first;
-			nextPutAll: ' <= ';
-			nextPutAll: registerAssignment second;
-			nextPutAll: ';';
-			lf
+		registerAssignment reset ifNotNil: [ 
+			out tab;
+				nextPutAll: 'always @(posedge ';
+				nextPutAll: registerAssignment clock.
+				
+			registerAssignment resetActiveLow ifTrue: [
+				out
+					nextPutAll: ' or negedge ';
+					nextPutAll: registerAssignment reset;
+					nextPutAll: ') begin';
+					lf;
+					tab; tab; nextPutAll: 'if (!'; nextPutAll:  registerAssignment reset;
+					nextPut: $); lf
+			] ifFalse: [
+				out
+					nextPutAll: ' or posedge ';
+					nextPutAll: registerAssignment reset;
+					nextPutAll: ') begin';
+					lf;
+					tab; tab; nextPutAll: 'if ('; nextPutAll:  registerAssignment reset;
+					nextPut: $); lf
+			].
+		
+			out
+				tab; tab; tab; nextPutAll: registerAssignment name;
+				nextPutAll: ' <= ';
+				nextPutAll: (registerAssignment resetValue ifNil: ['0']);
+				nextPutAll: ';';
+				lf;
+				
+				tab; tab; nextPutAll: 'else';
+				lf;
+				
+				tab; tab; tab; nextPutAll: registerAssignment name;
+				nextPutAll: ' <= ';
+				nextPutAll: registerAssignment value;
+				nextPutAll: ';';
+				lf;
+				
+				tab; nextPutAll: 'end';
+				lf
+		] ifNil: [
+			out tab;
+				nextPutAll: 'always @(posedge ';
+				nextPutAll: registerAssignment clock;
+				nextPutAll: ') ';
+				nextPutAll: registerAssignment name;
+				nextPutAll: ' <= ';
+				nextPutAll: registerAssignment value;
+				nextPutAll: ';';
+				lf
+		]
 	].
 
 	out lf.

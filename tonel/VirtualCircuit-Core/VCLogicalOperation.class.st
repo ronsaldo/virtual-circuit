@@ -1,6 +1,6 @@
 Class {
 	#name : #VCLogicalOperation,
-	#superclass : #VCVariable,
+	#superclass : #VCExpression,
 	#instVars : [
 		'operands',
 		'operation'

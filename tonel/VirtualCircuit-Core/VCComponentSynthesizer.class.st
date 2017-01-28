@@ -18,9 +18,17 @@ Class {
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
 
-{ #category : #'as yet unclassified' }
-VCComponentSynthesizer >> addRegister: registerName assignment: value onClock: clockName [
-	registerAssignments add: { registerName . value . clockName }
+{ #category : #adding }
+VCComponentSynthesizer >> addRegister: registerName assignment: value onClock: clockName onReset: resetName resetActiveLow: resetActiveLow resetValue: resetValue [
+	registerAssignments add: (VCSynthRegisterAssignment new
+		name: registerName;
+		value: value;
+		clock: clockName;
+		reset: resetName;
+		resetActiveLow: resetActiveLow;
+		resetValue: resetValue;
+		yourself
+	)
 ]
 
 { #category : #adding }
@@ -119,6 +127,9 @@ VCComponentSynthesizer >> setVariable: variable value: value [
 	variable isRegister ifTrue: [
 		variable clock ifNil: [ self error: 'Cannot assign register without a connected clock.' ].
 		self addRegister: variableName assignment: value onClock: (self declareValue: variable clock)
+		onReset: (variable reset ifNotNil: [ self declareValue: variable reset ])
+		resetActiveLow: variable isResetActiveLow
+		resetValue: (variable resetValue ifNotNil: [ self declareValue: variable resetValue ])
 	] ifFalse: [
 		self addWire: variableName assignment: value
 	].

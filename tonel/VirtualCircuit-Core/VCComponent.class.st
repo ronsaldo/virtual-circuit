@@ -8,7 +8,9 @@ Class {
 		'pins',
 		'elements',
 		'autoClock',
-		'clockPin'
+		'clockPin',
+		'resetPin',
+		'autoReset'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -19,9 +21,14 @@ VCComponent class >> build: aBlock [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #defaults }
 VCComponent class >> defaultClockPinName [
 	^ #clock
+]
+
+{ #category : #defaults }
+VCComponent class >> defaultResetPinName [
+	^ #reset
 ]
 
 { #category : #building }
@@ -64,6 +71,9 @@ VCComponent >> addElement: element [
 	(element needsClock and: [ self isAutoClock ])ifTrue: [
 		self connectClockTo: element.
 	].
+	(element hasReset and: [ self isAutoReset ])ifTrue: [
+		self connectResetTo: element.
+	].
 
 	^ element
 ]
@@ -89,6 +99,17 @@ VCComponent >> autoClock [
 VCComponent >> autoClock: clockPinName [
 	autoClock := true.
 	self ensureClockPin: clockPinName.
+]
+
+{ #category : #reset }
+VCComponent >> autoReset [
+	self autoReset: self class defaultResetPinName.
+]
+
+{ #category : #reset }
+VCComponent >> autoReset: resetPinName [
+	autoReset := true.
+	self ensureResetPin: resetPinName.
 ]
 
 { #category : #building }
@@ -136,6 +157,12 @@ VCComponent >> connectClockTo: aComponent [
 	aComponent clock: clockPin
 ]
 
+{ #category : #reset }
+VCComponent >> connectResetTo: aComponent [
+	self assert: resetPin isNotNil.
+	aComponent reset: resetPin
+]
+
 { #category : #accessing }
 VCComponent >> elements [
 	^ elements
@@ -154,6 +181,19 @@ VCComponent >> ensureClockPin: pinName [
 	^ clockPin
 ]
 
+{ #category : #reset }
+VCComponent >> ensureResetPin [
+	^ self ensureResetPin: self class defaultResetPinName
+]
+
+{ #category : #reset }
+VCComponent >> ensureResetPin: pinName [
+	resetPin ifNotNil: [ ^ resetPin ].
+	resetPin := self addPin: (VCInputPin new name: pinName; bits: 1; yourself).
+	self assert: self hasReset.
+	^ resetPin
+]
+
 { #category : #caching }
 VCComponent >> flushCache [
 	cacheClass ifNotNil: [
@@ -166,6 +206,11 @@ VCComponent >> flushCache [
 	
 ]
 
+{ #category : #reset }
+VCComponent >> hasReset [
+	^ resetPin isNotNil
+]
+
 { #category : #initialization }
 VCComponent >> initialize [
 	super initialize.
@@ -173,11 +218,17 @@ VCComponent >> initialize [
 	elements := OrderedCollection new.
 	dependents := Set new.
 	autoClock := false.
+	autoReset := false.
 ]
 
 { #category : #clock }
 VCComponent >> isAutoClock [
 	^ autoClock
+]
+
+{ #category : #reset }
+VCComponent >> isAutoReset [
+	^ autoReset
 ]
 
 { #category : #testing }
@@ -198,6 +249,16 @@ VCComponent >> needsClock [
 { #category : #accessing }
 VCComponent >> pins [
 	^ pins
+]
+
+{ #category : #accessing }
+VCComponent >> resetPin [
+	^ resetPin
+]
+
+{ #category : #accessing }
+VCComponent >> resetPin: anObject [
+	resetPin := anObject
 ]
 
 { #category : #synthesis }

@@ -1,6 +1,6 @@
 Class {
 	#name : #VCBitPack,
-	#superclass : #VCVariable,
+	#superclass : #VCExpression,
 	#instVars : [
 		'wires'
 	],

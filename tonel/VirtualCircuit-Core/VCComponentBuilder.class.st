@@ -12,6 +12,11 @@ VCComponentBuilder >> autoClock [
 	^ component autoClock
 ]
 
+{ #category : #reset }
+VCComponentBuilder >> autoReset [
+	^ component autoReset
+]
+
 { #category : #clock }
 VCComponentBuilder >> clock [
 	^ component ensureClockPin
@@ -123,4 +128,9 @@ VCComponentBuilder >> register: bits [
 	^ component addElement: (VCRegister new
 		bits: bits;
 		yourself)
+]
+
+{ #category : #reset }
+VCComponentBuilder >> reset [
+	^ component resetPin
 ]

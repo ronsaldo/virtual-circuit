@@ -91,7 +91,7 @@ VCBasicComponentLibrary >> data [
 VCBasicComponentLibrary >> data: bits [
 	| d q nq reg |
 	^ self componentBuild: [ :builder |
-		builder autoClock.
+		builder autoClock; autoReset.
 		
 		d := builder input: #d bits: bits.
 		
@@ -107,7 +107,7 @@ VCBasicComponentLibrary >> data: bits [
 VCBasicComponentLibrary >> latchedSipo: bitWidth [
 	| input previousStage bits load latchedBits |
 	^ self componentBuild: [ :builder |
-		builder autoClock.
+		builder autoClock; autoReset.
 		
 		input := builder input: #in.
 	
@@ -131,7 +131,7 @@ VCBasicComponentLibrary >> latchedSipo: bitWidth [
 VCBasicComponentLibrary >> sipo: bitWidth [
 	| input previousStage bits |
 	^ self componentBuild: [ :builder |
-		builder autoClock.
+		builder autoClock; autoReset.
 		
 		input := builder input: #in.
 	

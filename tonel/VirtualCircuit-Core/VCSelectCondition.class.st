@@ -1,6 +1,6 @@
 Class {
 	#name : #VCSelectCondition,
-	#superclass : #VCVariable,
+	#superclass : #VCExpression,
 	#instVars : [
 		'condition',
 		'falseValue',

@@ -2,17 +2,10 @@ Class {
 	#name : #VCVariable,
 	#superclass : #VCExpression,
 	#instVars : [
-		'bits',
 		'value'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
-
-{ #category : #'logical operations' }
-VCVariable >> & other [
-	^ self bitAnd: other
-	
-]
 
 { #category : #visualization }
 VCVariable >> addRoassalEdgesFrom: element toView: view [
@@ -21,124 +14,9 @@ VCVariable >> addRoassalEdgesFrom: element toView: view [
 	].
 ]
 
-{ #category : #packing }
-VCVariable >> bit: bitIndex [
-	^ self bit: bitIndex count: 1
-]
-
-{ #category : #packing }
-VCVariable >> bit: bitIndex count: bitCount [
-	^ owner addElement: (VCBitExtract new
-		wire: self;
-		index: bitIndex;
-		count: bitCount;
-		yourself)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitAnd: other [
-	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #and bits: bits first: self second: other)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitArithmeticRightShift: shiftAmount [
-	^ self bitArithmeticRightShift: shiftAmount bits: bits
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitArithmeticRightShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #arshift bits: resultBits first: self second: shiftAmount)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitInvert [
-	^ owner addElement: (VCLogicalOperation operation: #not bits: bits operand: self)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitLeftShift: shiftAmount [
-	^ self bitLeftShift: shiftAmount bits: bits
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitLeftShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #lshift bits: resultBits first: self second: shiftAmount)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitLogicalRightShift: shiftAmount [
-	^ self bitLogicalRightShift: shiftAmount bits: bits
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitLogicalRightShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #lrshift bits: resultBits first: self second: shiftAmount)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitOr: other [
-	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #or bits: bits first: self second: other)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> bitXor: other [
-	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #xor bits: bits first: self second: other)
-]
-
-{ #category : #accessing }
-VCVariable >> bits [
-	^ bits
-]
-
-{ #category : #accessing }
-VCVariable >> bits: anObject [
-	bits := anObject
-]
-
-{ #category : #'logical operations' }
-VCVariable >> ifFalse: falseValue ifTrue: trueValue [
-	self assert: bits = 1.
-	"Mux"
-	^ owner addElement: (VCSelectCondition new
-		condition: self;
-		trueValue: trueValue;
-		falseValue: falseValue;
-		yourself)
-]
-
-{ #category : #'logical operations' }
-VCVariable >> ifTrue: trueValue ifFalse: falseValue [
-	self assert: bits = 1.
-	"Mux"
-	^ owner addElement: (VCSelectCondition new
-		condition: self;
-		trueValue: trueValue;
-		falseValue: falseValue;
-		yourself)
-]
-
-{ #category : #initialization }
-VCVariable >> initialize [
-	super initialize.
-	bits := 1.
-]
-
-{ #category : #testing }
-VCVariable >> isRegister [
-	^ false
-]
-
 { #category : #testing }
 VCVariable >> isVariable [
 	^ true
-]
-
-{ #category : #'logical operations' }
-VCVariable >> not [
-	^ self bitInvert
 ]
 
 { #category : #accessing }
@@ -149,29 +27,4 @@ VCVariable >> value [
 { #category : #accessing }
 VCVariable >> value: anObject [
 	value := anObject
-]
-
-{ #category : #conditions }
-VCVariable >> whenFalseDo: actions [
-	self assert: bits = 1.
-	^ self not whenTrueDo: actions
-]
-
-{ #category : #conditions }
-VCVariable >> whenTrueDo: actions [
-	self assert: bits = 1.
-	actions do: [ :action |
-		action on: self applyInComponent: owner
-	]
-]
-
-{ #category : #accessing }
-VCVariable >> wire [
-	isRegister := false
-]
-
-{ #category : #'logical operations' }
-VCVariable >> | other [
-	^ self bitOr: other
-	
 ]
