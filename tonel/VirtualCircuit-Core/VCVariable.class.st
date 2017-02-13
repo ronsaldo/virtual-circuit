@@ -25,6 +25,6 @@ VCVariable >> value [
 ]
 
 { #category : #accessing }
-VCVariable >> value: anObject [
-	value := anObject
+VCVariable >> value: aValue [
+	value := self adaptElement: aValue
 ]

@@ -13,7 +13,8 @@ Class {
 		'gensymCount',
 		'submodules',
 		'wireAssignments',
-		'registerAssignments'
+		'registerAssignments',
+		'ramModules'
 	],
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
@@ -34,6 +35,32 @@ VCComponentSynthesizer >> addRegister: registerName assignment: value onClock: c
 { #category : #adding }
 VCComponentSynthesizer >> addWire: wireName assignment: value [
 	wireAssignments add: { wireName . value }
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> convertRAMPort: port [
+	| portName |
+	port isReadPort ifTrue: [ 
+		portName := (instantiatedElements at: port ifAbsentPut: [
+			self generateSymbolPrefix: (port name ifNil: [ '_ram_port' ])
+		]).
+		^ VCSRAMReadPortSynthesis new
+			name: portName;
+			address: (self declareValue: port address);
+			depth: port ram depth;
+			yourself
+	].
+
+	port isWritePort ifTrue: [
+		^ VCSRAMWritePortSynthesis new
+			address: (self declareValue: port address);
+			enabled: (self declareValue: port enabled);
+			value: (self declareValue: port value);
+			depth: port ram depth;
+			yourself
+	].
+
+	self error: 'Unsupported RAM port type.'
 ]
 
 { #category : #'code generation' }
@@ -95,6 +122,7 @@ VCComponentSynthesizer >> initialize [
 	registers := OrderedCollection new.
 	wires := OrderedCollection new.
 	submodules := OrderedCollection new.
+	ramModules := OrderedCollection new.
 	instantiatedElements := Dictionary new.
 	wireAssignments := OrderedCollection new.
 	registerAssignments := OrderedCollection new.
@@ -202,6 +230,32 @@ VCComponentSynthesizer >> visitLogicalOperation: logicalOperation [
 	^ self
 		setVariable: logicalOperation
 		value: (self emitLogicalOperation: logicalOperation operation operands: (logicalOperation operands collect: [ :op | self declareValue: op ]))
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitRAMModule: ramModule [
+	| ramModuleName ramPorts |
+	ramModuleName := instantiatedElements at: ramModule ifAbsentPut: [
+		self generateSymbolPrefix: (ramModule name ifNil: [ '_ram' ])
+	].
+
+	ramPorts := ramModule ports collect: [ :port | self convertRAMPort: port ].
+
+	ramModules add: (VCSRAMModuleSynthesis new
+		ram: ramModule;
+		clock: (self declareValue: ramModule clock);
+		memoryName: ramModuleName;
+		ports: ramPorts;
+		yourself
+	).
+	^ ramModuleName
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitRAMReadPort: readPort [
+	| ram |
+	ram := self declareValue: readPort ram.
+	^ self getOrCreateVariableName: readPort
 ]
 
 { #category : #visiting }

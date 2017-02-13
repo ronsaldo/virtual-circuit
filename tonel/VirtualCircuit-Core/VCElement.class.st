@@ -12,6 +12,11 @@ Class {
 VCElement >> addRoassalEdgesFrom: element toView: view [
 ]
 
+{ #category : #converting }
+VCElement >> asVCElementFor: anOwner bits: bitCount [
+	^ self
+]
+
 { #category : #testing }
 VCElement >> hasReset [
 	^ false

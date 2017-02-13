@@ -17,6 +17,13 @@ VCComponentBuilder >> autoReset [
 	^ component autoReset
 ]
 
+{ #category : #registers }
+VCComponentBuilder >> blockRam: size depth: depth [
+	^ (self ram: size depth: depth)
+		distributed: false;
+		yourself
+]
+
 { #category : #clock }
 VCComponentBuilder >> clock [
 	^ component ensureClockPin
@@ -30,6 +37,13 @@ VCComponentBuilder >> component [
 { #category : #pins }
 VCComponentBuilder >> component: aComponent [
 	component := aComponent
+]
+
+{ #category : #registers }
+VCComponentBuilder >> distributedRam: size depth: depth [
+	^ (self ram: size depth: depth)
+		distributed: true;
+		yourself
 ]
 
 { #category : #pins }
@@ -116,6 +130,14 @@ VCComponentBuilder >> pack: elements [
 { #category : #packing }
 VCComponentBuilder >> pack: elements with: aBlock [
 	^ self pack: (elements collect: aBlock)
+]
+
+{ #category : #registers }
+VCComponentBuilder >> ram: size depth: depth [
+	^ component addElement: (VCRAMModule new
+		depth: depth;
+		size: size;
+		yourself)
 ]
 
 { #category : #registers }

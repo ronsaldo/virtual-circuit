@@ -13,6 +13,11 @@ VCExpression >> & other [
 	
 ]
 
+{ #category : #'as yet unclassified' }
+VCExpression >> adaptElement: anElement [
+	^ anElement asVCElementFor: owner bits: bits
+]
+
 { #category : #packing }
 VCExpression >> bit: bitIndex [
 	^ self bit: bitIndex count: 1
@@ -30,7 +35,7 @@ VCExpression >> bit: bitIndex count: bitCount [
 { #category : #'logical operations' }
 VCExpression >> bitAnd: other [
 	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #and bits: bits first: self second: other)
+	^ owner addElement: (VCLogicalOperation operation: #and bits: bits first: self second: (self adaptElement: other))
 ]
 
 { #category : #'logical operations' }
@@ -40,7 +45,7 @@ VCExpression >> bitArithmeticRightShift: shiftAmount [
 
 { #category : #'logical operations' }
 VCExpression >> bitArithmeticRightShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #arshift bits: resultBits first: self second: shiftAmount)
+	^ owner addElement: (VCLogicalOperation operation: #arshift bits: resultBits first: self second: (self adaptElement: shiftAmount))
 ]
 
 { #category : #'logical operations' }
@@ -55,7 +60,7 @@ VCExpression >> bitLeftShift: shiftAmount [
 
 { #category : #'logical operations' }
 VCExpression >> bitLeftShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #lshift bits: resultBits first: self second: shiftAmount)
+	^ owner addElement: (VCLogicalOperation operation: #lshift bits: resultBits first: self second: (self adaptElement: shiftAmount))
 ]
 
 { #category : #'logical operations' }
@@ -65,19 +70,19 @@ VCExpression >> bitLogicalRightShift: shiftAmount [
 
 { #category : #'logical operations' }
 VCExpression >> bitLogicalRightShift: shiftAmount bits: resultBits [
-	^ owner addElement: (VCLogicalOperation operation: #lrshift bits: resultBits first: self second: shiftAmount)
+	^ owner addElement: (VCLogicalOperation operation: #lrshift bits: resultBits first: self second: (self adaptElement: shiftAmount))
 ]
 
 { #category : #'logical operations' }
 VCExpression >> bitOr: other [
 	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #or bits: bits first: self second: other)
+	^ owner addElement: (VCLogicalOperation operation: #or bits: bits first: self second: (self adaptElement: other))
 ]
 
 { #category : #'logical operations' }
 VCExpression >> bitXor: other [
 	self assert: bits = other bits.
-	^ owner addElement: (VCLogicalOperation operation: #xor bits: bits first: self second: other)
+	^ owner addElement: (VCLogicalOperation operation: #xor bits: bits first: self second: (self adaptElement: other))
 ]
 
 { #category : #accessing }

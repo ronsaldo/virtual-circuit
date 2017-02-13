@@ -10,7 +10,7 @@ Class {
 }
 
 { #category : #comparing }
-VCRegister >> <= newValue [
+VCRegister >> <== newValue [
 	^ VCRegisterAssignment new
 		register: self;
 		value: value;

@@ -79,6 +79,7 @@ VCVerilogComponentSynthesizer >> emitFinalContent [
 		self emitRegisters: out.
 		self emitWires: out.
 		self emitSubmodules: out.
+		self emitRamModules: out.
 		self emitWireAssignments: out.
 		self emitRegisterAssignments: out.
 		
@@ -115,6 +116,76 @@ VCVerilogComponentSynthesizer >> emitOutputsInto: out [
 	].
 	outputs ifNotEmpty: [ out lf ].
 
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMReadPort: port clockedImplementationFor: ram into: out [
+	ram ram distributed ifFalse: [
+		out tab; tab; nextPutAll: port name; nextPutAll: '_address <= '; nextPutAll: port address; nextPut: $;; lf.
+	].
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMReadPort: port unclockedImplementationFor: ram into: out [
+	out tab; nextPutAll: ('assign {1} = {2}[{3}];' format: {port name . ram memoryName .
+		ram ram distributed ifTrue: [ port address ] ifFalse: [port name , '_address']}); lf.
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMReadPortDeclaration: port for: ram into: out [
+	out tab; nextPutAll: ('wire [{2}:0] {1};' format: {port name . port depth}); lf.
+	ram ram distributed ifFalse: [
+		out tab; nextPutAll: ('reg [{2}:0] {1}_address;' format: {port name . port depth}); lf.
+	]
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMWritePort: port clockedImplementationFor: ram into: out [
+	out tab; tab; nextPutAll: 'if ('; nextPutAll: port enabled; nextPutAll: ') begin'; lf.
+	out tab; tab; tab; nextPutAll: ('{1}[{2}] <= {3};' format: {ram memoryName . port address . port value}); lf.
+	out tab; tab; nextPutAll: 'end'; lf
+	
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMWritePort: port unclockedImplementationFor: ram into: out [
+
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRAMWritePortDeclaration: port for: ram into: out [
+	"Nothing required"
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRamModule: ramModule into: out [
+	"
+	http://www.dilloneng.com/inferring-block-ram-vs-distributed-ram-in-xst-and-precision.html#/
+	"
+	out tab; nextPutAll: ('//synthesis attribute ram_style of {1} is {2}' format: {ramModule memoryName . ramModule ram distributed ifTrue: [ 'distributed' ] ifFalse: ['block']}); lf.
+
+	out tab; nextPutAll: ('reg [{2}:0] {1} [{3}:0];' format: {ramModule memoryName . ramModule ram depth - 1 . ramModule ram size - 1 }); lf.
+	ramModule ports do: [ :port |
+		port emitDeclarationWith: self for: ramModule into: out
+	].
+
+	out lf.
+	out tab; nextPutAll: 'always @(posedge '; nextPutAll: ramModule clock; nextPutAll: ') begin'; lf.
+	ramModule ports do: [ :port |
+		port emitClockedImplementationWith: self for: ramModule into: out
+	].
+	out tab; nextPutAll: 'end'; lf.
+	ramModule ports do: [ :port |
+		port emitUnclockedImplementationWith: self for: ramModule into: out
+	].
+	out lf.
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitRamModules: out [
+	ramModules ifEmpty: [ ^ self ].
+	
+	ramModules do: [ :ramModule | self emitRamModule: ramModule into: out ]
 ]
 
 { #category : #'code generation' }
@@ -207,7 +278,6 @@ VCVerilogComponentSynthesizer >> emitSubmodule: submodule into: out [
 	module := instantiatedElements at: submodule baseComponent.
 	instanceName := instantiatedElements at: submodule.
 	out tab; nextPutAll: module name; space; nextPutAll: instanceName ; nextPutAll: ' ('; lf.
-	submodule needsClock ifTrue: [ self halt ].
 	submodule pins doWithIndex: [ :pin :index|
 		out tab; tab; nextPut: $.; nextPutAll: pin name;
 			nextPut: $(; nextPutAll: (instantiatedElements at: pin); nextPut: $).

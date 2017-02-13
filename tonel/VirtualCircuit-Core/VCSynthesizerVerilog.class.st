@@ -11,5 +11,7 @@ VCSynthesizerVerilog >> componentSynthesizerClass [
 
 { #category : #'as yet unclassified' }
 VCSynthesizerVerilog >> sanitizeNameForSymbol: name [
-	^ name copyReplaceAll: ': ' with: '_'
+	^ ((name copyReplaceAll: ': ' with: '_')
+	   copyReplaceAll: ':' with: '_')
+		copyReplaceAll: ' ' with: '_'
 ]
