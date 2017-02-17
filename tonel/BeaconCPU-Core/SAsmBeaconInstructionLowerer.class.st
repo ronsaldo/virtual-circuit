@@ -1,7 +1,7 @@
 Class {
 	#name : #SAsmBeaconInstructionLowerer,
 	#superclass : #SAsmInstructionLowerer,
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #'abstract instruction generation' }

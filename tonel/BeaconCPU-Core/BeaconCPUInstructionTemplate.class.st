@@ -5,7 +5,7 @@ Class {
 		'name',
 		'opcode'
 	],
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #'as yet unclassified' }

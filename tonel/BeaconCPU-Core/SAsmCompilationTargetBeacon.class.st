@@ -4,7 +4,7 @@ Class {
 	#pools : [
 		'BeaconSlowCPU'
 	],
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #'calling conventions' }

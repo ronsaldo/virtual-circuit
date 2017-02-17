@@ -4,7 +4,7 @@ Class {
 	#pools : [
 		'BeaconCPUISA'
 	],
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #examples }

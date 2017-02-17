@@ -5,7 +5,7 @@ Class {
 		'name',
 		'value'
 	],
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #printing }

@@ -23,7 +23,12 @@ Class {
 		'AE',
 		'B',
 		'BE',
+		'BeaconCPUBootAddress',
+		'BeaconConditionCodes',
 		'BeaconInstructionTemplates',
+		'BeaconIntegerRegisters',
+		'BeaconOpcodes',
+		'C',
 		'DIV',
 		'EQ',
 		'FP',
@@ -38,6 +43,7 @@ Class {
 		'NAE',
 		'NB',
 		'NBE',
+		'NC',
 		'NCC',
 		'NE',
 		'NEQ',
@@ -45,9 +51,14 @@ Class {
 		'NGE',
 		'NL',
 		'NLE',
+		'NO',
 		'NOP',
+		'NP',
+		'NS',
 		'NZ',
 		'NoConditionCode',
+		'O',
+		'P',
 		'PC',
 		'R0',
 		'R1',
@@ -79,11 +90,12 @@ Class {
 		'R8',
 		'R9',
 		'REM',
+		'S',
 		'SP',
 		'SUB',
 		'Z'
 	],
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #registers }
@@ -258,6 +270,7 @@ BeaconCPUISA class >> declareCondition: codeName code: value [
 	].
 
 	self classVarNamed: codeName put: value.
+	^ self classVarNamed: codeName
 ]
 
 { #category : #initialization }
@@ -270,7 +283,8 @@ BeaconCPUISA class >> declareIntegerRegister: registerIndex name: registerName [
 		name: registerName;
 		value: registerIndex;
 		yourself).
-	self declareRegisterAccessor: registerName
+	self declareRegisterAccessor: registerName.
+	^ self classVarNamed: registerName
 ]
 
 { #category : #initialization }
@@ -286,7 +300,9 @@ BeaconCPUISA class >> declareOpcode: opcodeName type: opcodeType value: opcodeVa
 		yourself).
 	self class compile:
 ('{1}
-	^ {2}' format: {opcodeName asLowercase . opcodeName }) classified: 'opcodes'
+	^ {2}' format: {opcodeName asLowercase . opcodeName }) classified: 'opcodes'.
+	
+	^ self classVarNamed: opcodeName
 ]
 
 { #category : #initialization }
@@ -312,11 +328,12 @@ BeaconCPUISA class >> initialize [
 	self initializeConditionCodes.
 	self initializeInstructionTemplates.
 	self initializeOpcodes.
+	self initializeConstants.
 ]
 
 { #category : #initialization }
 BeaconCPUISA class >> initializeConditionCodes [
-	#(
+	BeaconConditionCodes := #(
 		"=="
 		(Z EQ)
 		(NZ NE NEQ)
@@ -342,11 +359,16 @@ BeaconCPUISA class >> initializeConditionCodes [
 		
 		(S)
 		(NS)
-	) doWithIndex: [ :conditionCodeNames :value |
-		conditionCodeNames do: [ :codeName |
+	) collectWithIndex: [ :conditionCodeNames :value |
+		conditionCodeNames collect: [ :codeName |
 			self declareCondition: codeName code: value - 1
 		]
 	]
+]
+
+{ #category : #initialization }
+BeaconCPUISA class >> initializeConstants [
+	BeaconCPUBootAddress := 16rFFFFFFFFFFFFFFF8.
 ]
 
 { #category : #initialization }
@@ -359,7 +381,7 @@ BeaconCPUISA class >> initializeInstructionTemplates [
 
 { #category : #initialization }
 BeaconCPUISA class >> initializeOpcodes [
-	#(
+	BeaconOpcodes :=#(
 		"ALU opcode"
 		(NOP alu)
 		(ADD alu)
@@ -370,21 +392,24 @@ BeaconCPUISA class >> initializeOpcodes [
 		
 		"Low control"
 		(HALT control)
-	) doWithIndex: [ :opcodeDefinition :index |
+	) collectWithIndex: [ :opcodeDefinition :index |
 		self declareOpcode: opcodeDefinition first type: opcodeDefinition second value: index - 1
 	]
 ]
 
 { #category : #initialization }
 BeaconCPUISA class >> initializeRegisters [
-	0 to: 27 do: [ :i |
+	BeaconIntegerRegisters := (0 to: 27) collect: [ :i |
 		self declareIntegerRegister: i name: ('R' , i asString) asSymbol
 	].
 
-	self declareIntegerRegister: 28 name: #LR.
-	self declareIntegerRegister: 29 name: #FP.
-	self declareIntegerRegister: 30 name: #SP.
-	self declareIntegerRegister: 31 name: #PC.
+	BeaconIntegerRegisters := BeaconIntegerRegisters , { 
+		self declareIntegerRegister: 28 name: #LR.
+		self declareIntegerRegister: 29 name: #FP.
+		self declareIntegerRegister: 30 name: #SP.
+		self declareIntegerRegister: 31 name: #PC.
+	}
+
 ]
 
 { #category : #opcodes }

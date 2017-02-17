@@ -1,7 +1,7 @@
 Class {
 	#name : #BeaconCPUInstructionTemplateALU,
 	#superclass : #BeaconCPUInstructionTemplate,
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #'as yet unclassified' }

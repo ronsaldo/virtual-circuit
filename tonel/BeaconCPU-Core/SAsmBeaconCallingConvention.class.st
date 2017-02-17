@@ -1,5 +1,5 @@
 Class {
 	#name : #SAsmBeaconCallingConvention,
 	#superclass : #SAsmCallingConvention,
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }

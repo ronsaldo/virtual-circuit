@@ -1,7 +1,7 @@
 Class {
 	#name : #SAsmBeaconCallingConventionNaked,
 	#superclass : #SAsmBeaconCallingConvention,
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-ISA'
 }
 
 { #category : #testing }
