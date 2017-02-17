@@ -21,3 +21,10 @@ VCInstanceInputPin >> instance [
 VCInstanceInputPin >> instance: anObject [
 	instance := anObject
 ]
+
+{ #category : #'register value' }
+VCInstanceInputPin >> register [
+	^ value ifNil: [ value := owner addElement: (VCRegister new
+			bits: self bits;
+			yourself) ]
+]

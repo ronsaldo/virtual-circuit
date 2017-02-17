@@ -7,6 +7,11 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #'state machine' }
+VCComponentBuilder >> actionList: aSequence [
+	^ VCSequentialActionList new list: aSequence
+]
+
 { #category : #clock }
 VCComponentBuilder >> autoClock [
 	^ component autoClock
@@ -15,6 +20,11 @@ VCComponentBuilder >> autoClock [
 { #category : #reset }
 VCComponentBuilder >> autoReset [
 	^ component autoReset
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> axiBusMaster [
+	^ VCAXIMemoryBusMaster new builder: self
 ]
 
 { #category : #registers }
@@ -74,6 +84,13 @@ VCComponentBuilder >> instance: aComponent [
 	^ component addElement: aComponent makeInstance
 ]
 
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusMasterInterface: interfaceName [
+	^ (VCMemoryBusMaster subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+		builder: self;
+		yourself
+]
+
 { #category : #pins }
 VCComponentBuilder >> output: inputName [
 	^ self output: inputName bits: 1
@@ -111,6 +128,19 @@ VCComponentBuilder >> output: inputName pack: collection with: aBlock [
 { #category : #pins }
 VCComponentBuilder >> output: inputName value: value [
 	^ self output: inputName bits: 1 value: value
+]
+
+{ #category : #pins }
+VCComponentBuilder >> outputRegister: inputName [
+	^ self outputRegister: inputName bits: 1
+]
+
+{ #category : #pins }
+VCComponentBuilder >> outputRegister: inputName bits: bits [
+	| result |
+	result := self register: bits.
+	self output: inputName bits: bits value: result.
+	^ result
 ]
 
 { #category : #packing }
@@ -155,4 +185,11 @@ VCComponentBuilder >> register: bits [
 { #category : #reset }
 VCComponentBuilder >> reset [
 	^ component resetPin
+]
+
+{ #category : #actions }
+VCComponentBuilder >> stateMachine [
+	^ VCStateMachineBuilder new
+		builder: self;
+		yourself
 ]

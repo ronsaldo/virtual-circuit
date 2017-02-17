@@ -1,8 +1,18 @@
 Class {
 	#name : #VCSynthesizerVerilog,
 	#superclass : #VCSynthesizer,
+	#classVars : [
+		'ForbiddenSymbolCharacters'
+	],
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
+
+{ #category : #initialization }
+VCSynthesizerVerilog class >> initialize [
+	super initialize.
+	
+	ForbiddenSymbolCharacters := #($: $_ $ $# )
+]
 
 { #category : #'as yet unclassified' }
 VCSynthesizerVerilog >> componentSynthesizerClass [
@@ -11,7 +21,5 @@ VCSynthesizerVerilog >> componentSynthesizerClass [
 
 { #category : #'as yet unclassified' }
 VCSynthesizerVerilog >> sanitizeNameForSymbol: name [
-	^ ((name copyReplaceAll: ': ' with: '_')
-	   copyReplaceAll: ':' with: '_')
-		copyReplaceAll: ' ' with: '_'
+	^ name collect: [:char | (ForbiddenSymbolCharacters includes: char) ifTrue: [ $_ ] ifFalse: [ char ] ]
 ]

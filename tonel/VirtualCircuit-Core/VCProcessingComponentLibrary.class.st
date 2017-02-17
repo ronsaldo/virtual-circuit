@@ -5,6 +5,14 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+VCProcessingComponentLibrary >> cache: size depth: depth [
+	^ self componentBuild: [ :builder |
+		builder autoClock.
+	].
+
+]
+
+{ #category : #'as yet unclassified' }
 VCProcessingComponentLibrary >> register2x1: depth fileSize: fileSize [
 	| readAddress1 readAddress2 writeAddress writeValue writeEnabled memory addressDepth |
 	^ self componentBuild: [ :builder |

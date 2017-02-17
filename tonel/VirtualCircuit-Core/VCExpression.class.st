@@ -13,6 +13,24 @@ VCExpression >> & other [
 	
 ]
 
+{ #category : #packing }
+VCExpression >> , other [
+	^ owner addElement: (VCBitPack new
+		wires: {self . other asVCElementFor: owner };
+		computeBitCount;
+		yourself)
+]
+
+{ #category : #'logical operations' }
+VCExpression >> << bitShiftAmount [
+	^ self bitLeftShift: bitShiftAmount
+]
+
+{ #category : #'logical operations' }
+VCExpression >> >> bitShiftAmount [
+	^ self bitLogicalRightShift: bitShiftAmount
+]
+
 { #category : #'as yet unclassified' }
 VCExpression >> adaptElement: anElement [
 	^ anElement asVCElementFor: owner bits: bits
@@ -92,29 +110,53 @@ VCExpression >> bits [
 
 { #category : #accessing }
 VCExpression >> bits: anObject [
+	self assert: anObject > 0.
 	bits := anObject
+]
+
+{ #category : #comparison }
+VCExpression >> equals: other [
+	^ owner addElement: (VCLogicalOperation operation: #equals bits: 1 first: self second: (self adaptElement: other))
 ]
 
 { #category : #'logical operations' }
 VCExpression >> ifFalse: falseValue ifTrue: trueValue [
+	| resultBits |
 	self assert: bits = 1.
+	resultBits := self inferMaxBitDepth: { falseValue . trueValue }.
 	"Mux"
 	^ owner addElement: (VCSelectCondition new
 		condition: self;
-		trueValue: trueValue;
-		falseValue: falseValue;
+		bits: resultBits;
+		trueValue: (trueValue asVCElementFor: owner bits: resultBits);
+		falseValue: (falseValue asVCElementFor: owner bits: resultBits);
 		yourself)
 ]
 
 { #category : #'logical operations' }
 VCExpression >> ifTrue: trueValue ifFalse: falseValue [
+	| resultBits |
 	self assert: bits = 1.
+	resultBits := self inferMaxBitDepth: { falseValue . trueValue }.
 	"Mux"
 	^ owner addElement: (VCSelectCondition new
 		condition: self;
-		trueValue: trueValue;
-		falseValue: falseValue;
+		bits: resultBits;
+		trueValue: (trueValue asVCElementFor: owner bits: resultBits);
+		falseValue: (falseValue asVCElementFor: owner bits: resultBits);
 		yourself)
+]
+
+{ #category : #'as yet unclassified' }
+VCExpression >> inferMaxBitDepth: anArray [
+	| result |
+	result := 1.
+	anArray do: [ :element |
+		(element isVirtualCircuitElement and: [ element isExpression ]) ifTrue: [ 
+			result := result max: element bits
+		]
+	].
+	^ result
 ]
 
 { #category : #initialization }
@@ -131,6 +173,11 @@ VCExpression >> isExpression [
 { #category : #'logical operations' }
 VCExpression >> not [
 	^ self bitInvert
+]
+
+{ #category : #comparison }
+VCExpression >> notEquals: other [
+	^ owner addElement: (VCLogicalOperation operation: #notEquals bits: 1 first: self second: (self adaptElement: other))
 ]
 
 { #category : #conditions }

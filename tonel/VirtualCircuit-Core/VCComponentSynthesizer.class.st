@@ -14,7 +14,8 @@ Class {
 		'submodules',
 		'wireAssignments',
 		'registerAssignments',
-		'ramModules'
+		'ramModules',
+		'assignedVariables'
 	],
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
@@ -126,12 +127,13 @@ VCComponentSynthesizer >> initialize [
 	instantiatedElements := Dictionary new.
 	wireAssignments := OrderedCollection new.
 	registerAssignments := OrderedCollection new.
+	assignedVariables := IdentitySet new.
 	gensymCount := 0.
 ]
 
 { #category : #'code generation' }
 VCComponentSynthesizer >> processOutputPin: outputPin [
-	self setVariable: outputPin value: (self declareValue: outputPin value)
+	self setVariable: outputPin value: [self declareValue: outputPin value]
 ]
 
 { #category : #'code generation' }
@@ -150,19 +152,34 @@ VCComponentSynthesizer >> processPin: pin [
 
 { #category : #initialization }
 VCComponentSynthesizer >> setVariable: variable value: value [
-	| variableName |
+	| variableName assignedValue |
+	(assignedVariables includes: variable) ifTrue: [ 
+		self error: 'Assigning multiples values to variable ' , variable printString
+	].
+	assignedVariables add: variable.
+
 	variableName := self getOrCreateVariableName: variable.
+	
+	assignedValue := value value.
+	assignedValue ifNil: [ self error: 'expected a value to assign to a variable' ].
+	
 	variable isRegister ifTrue: [
 		variable clock ifNil: [ self error: 'Cannot assign register without a connected clock.' ].
-		self addRegister: variableName assignment: value onClock: (self declareValue: variable clock)
+		self addRegister: variableName assignment: assignedValue onClock: (self declareValue: variable clock)
 		onReset: (variable reset ifNotNil: [ self declareValue: variable reset ])
 		resetActiveLow: variable isResetActiveLow
 		resetValue: (variable resetValue ifNotNil: [ self declareValue: variable resetValue ])
 	] ifFalse: [
-		self addWire: variableName assignment: value
+		self addWire: variableName assignment: assignedValue
 	].
 
 	^ variableName
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> setVariableExpression: anExpression value: aBlock [
+	(assignedVariables includes: anExpression) ifTrue: [ ^ instantiatedElements at: anExpression ].
+	^ self setVariable: anExpression value: aBlock.
 ]
 
 { #category : #'code generation' }
@@ -179,12 +196,12 @@ VCComponentSynthesizer >> synthesizeComponent: aComponent into: aModule [
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitBitExtract: bitExtract [
-	^ self setVariable: bitExtract value: (self emitBit: bitExtract index count: bitExtract count extract: (self declareValue: bitExtract wire ))
+	^ self setVariableExpression: bitExtract value: [self emitBit: bitExtract index count: bitExtract count extract: (self declareValue: bitExtract wire )]
 ]
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitBitPack: bitPack [
-	^ self setVariable: bitPack value: (self emitBitPack: (bitPack wires collect: [ :wire | self declareValue: wire ]))
+	^ self setVariableExpression: bitPack value: [self emitBitPack: (bitPack wires collect: [ :wire | self declareValue: wire ])]
 ]
 
 { #category : #visiting }
@@ -196,40 +213,45 @@ VCComponentSynthesizer >> visitComponentInstance: instance [
 	instantiatedElements at: instance baseComponent put: component.
 	instantiatedElements at: instance put: instanceVarName.
 	instance pins do: [ :pin | self declareValue: pin ].
+	instance pins do: [ :pin | pin accept: self ].
 	^ instanceVarName
 ]
 
 { #category : #visiting }
+VCComponentSynthesizer >> visitConstantInteger: aConstant [
+	^ self emitIntegerConstant: aConstant
+]
+
+{ #category : #visiting }
 VCComponentSynthesizer >> visitInstanceInputPin: instanceInputPin [
-	| instance varName |
+	| instance |
+	(assignedVariables includes: instanceInputPin) ifTrue: [
+		^ instantiatedElements at: instanceInputPin
+	].
+
 	instance := self declareValue: instanceInputPin instance.
-	instantiatedElements at: instanceInputPin ifPresent: [:result | ^ result].
-	
-	varName := instance , '_' , instanceInputPin name.
-	wires add: instanceInputPin.
-	instantiatedElements at: instanceInputPin put: varName.
-	^ self setVariable: instanceInputPin value: (self declareValue: instanceInputPin value)
+	^ self setVariableExpression: instanceInputPin value: [self declareValue: instanceInputPin value]
 ]
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitInstanceOutputPin: instanceOutputPin [
-	| instance varName |
-	instance := self declareValue: instanceOutputPin instance.
-	instantiatedElements at: instanceOutputPin ifPresent: [:result | ^ result].
-	
-	varName := instance , '_' , instanceOutputPin name.
-	wires add: instanceOutputPin.
-	instantiatedElements at: instanceOutputPin put: varName.
-	^ varName
+	| instance |
+	(assignedVariables includes: instanceOutputPin) ifTrue: [
+		^ instantiatedElements at: instanceOutputPin
+	].
 
+	instance := self declareValue: instanceOutputPin instance.
+	^ instanceOutputPin value ifNotNil: [
+		self setVariableExpression: instanceOutputPin value: [self declareValue: instanceOutputPin value]
+	] ifNil: [ 
+		self declareValue: instanceOutputPin
+	]
 	
 ]
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitLogicalOperation: logicalOperation [
-	^ self
-		setVariable: logicalOperation
-		value: (self emitLogicalOperation: logicalOperation operation operands: (logicalOperation operands collect: [ :op | self declareValue: op ]))
+	^ self setVariableExpression: logicalOperation value: [ self emitLogicalOperation: logicalOperation operation operands: (logicalOperation operands collect: [ :op | self declareValue: op ]) ]
 ]
 
 { #category : #visiting }
@@ -261,16 +283,16 @@ VCComponentSynthesizer >> visitRAMReadPort: readPort [
 { #category : #visiting }
 VCComponentSynthesizer >> visitRegister: register [
 	^ self
-		setVariable: register
-		value: (self declareValue: register value)
+		setVariableExpression: register
+		value: [self declareValue: register value]
 ]
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitSelectCondition: selectCondition [
 	^ self
-		setVariable: selectCondition
-		value: (self
+		setVariableExpression: selectCondition
+		value: [self
 			emitSelectCondition: (self declareValue: selectCondition condition)
 			trueValue: (self declareValue: selectCondition trueValue)
-			falseValue: (self declareValue: selectCondition falseValue))
+			falseValue: (self declareValue: selectCondition falseValue)]
 ]

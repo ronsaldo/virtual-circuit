@@ -7,6 +7,14 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #comparing }
+VCVariable >> <== newValue [
+	^ VCVariableAssignment new
+		variable: self;
+		value: (self adaptElement: newValue);
+		yourself
+]
+
 { #category : #visualization }
 VCVariable >> addRoassalEdgesFrom: element toView: view [
 	value isVirtualCircuitElement ifTrue: [
@@ -17,6 +25,11 @@ VCVariable >> addRoassalEdgesFrom: element toView: view [
 { #category : #testing }
 VCVariable >> isVariable [
 	^ true
+]
+
+{ #category : #initialization }
+VCVariable >> setDefaultValue [
+	self value: 0
 ]
 
 { #category : #accessing }

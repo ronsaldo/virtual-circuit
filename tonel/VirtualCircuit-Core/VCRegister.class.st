@@ -9,14 +9,6 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
-{ #category : #comparing }
-VCRegister >> <== newValue [
-	^ VCRegisterAssignment new
-		register: self;
-		value: value;
-		yourself
-]
-
 { #category : #visiting }
 VCRegister >> accept: aVisitor [
 	^ aVisitor visitRegister: self
@@ -69,6 +61,11 @@ VCRegister >> resetValue [
 ]
 
 { #category : #accessing }
-VCRegister >> resetValue: anObject [
-	resetValue := anObject
+VCRegister >> resetValue: aValue [
+	resetValue := self adaptElement: aValue
+]
+
+{ #category : #initialization }
+VCRegister >> setDefaultValue [
+	self value: self
 ]

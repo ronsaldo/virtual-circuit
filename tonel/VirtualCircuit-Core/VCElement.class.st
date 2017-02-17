@@ -13,6 +13,11 @@ VCElement >> addRoassalEdgesFrom: element toView: view [
 ]
 
 { #category : #converting }
+VCElement >> asVCElementFor: anOwner [
+	^ self
+]
+
+{ #category : #converting }
 VCElement >> asVCElementFor: anOwner bits: bitCount [
 	^ self
 ]

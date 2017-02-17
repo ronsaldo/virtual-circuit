@@ -20,6 +20,9 @@ VCVerilogComponentSynthesizer class >> initialize [
 		xor ^
 		lshift <<
 		lrshift >>
+		equals ==
+		notEquals !=
+		
 	)
 ]
 
@@ -96,6 +99,12 @@ VCVerilogComponentSynthesizer >> emitInputsInto: out [
 	].
 	inputs ifNotEmpty: [ out lf ].
 
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitIntegerConstant: aConstant [
+	self assert: aConstant bits > 0.
+	^ (aConstant bits printString) , '''d' , (aConstant value printString)
 ]
 
 { #category : #'code generation' }

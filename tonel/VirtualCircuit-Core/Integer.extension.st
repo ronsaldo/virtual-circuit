@@ -1,9 +1,9 @@
 Extension { #name : #Integer }
 
 { #category : #'*VirtualCircuit-Core' }
-Integer >> asVCElementFor: anOwner bits: bitCount [
+Integer >> asVCElementFor: anOwner bits: bitCount [ 
 	^ anOwner addElement: (VCConstantInteger new
 		value: self;
-		bits: bitCount;
+		bits: (bitCount max: self highBit);
 		yourself)
 ]
