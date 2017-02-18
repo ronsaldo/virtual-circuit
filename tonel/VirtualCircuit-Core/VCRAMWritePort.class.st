@@ -60,6 +60,11 @@ VCRAMWritePort >> isWritePort [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+VCRAMWritePort >> localPrefix [
+	^ '_ram_write_port'
+]
+
 { #category : #accessing }
 VCRAMWritePort >> ram [
 	^ ram

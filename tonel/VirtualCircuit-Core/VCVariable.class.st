@@ -32,6 +32,11 @@ VCVariable >> isVariable [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+VCVariable >> localPrefix [
+	^ '_variable'
+]
+
 { #category : #accessing }
 VCVariable >> maxValue [
 	^ (1 << bits) - 1

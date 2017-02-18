@@ -56,6 +56,16 @@ VCExpression >> adaptElement: anElement [
 	^ anElement asVCElementFor: owner bits: bits
 ]
 
+{ #category : #'logical operations' }
+VCExpression >> alignedDownTo: alignment [
+	| discardedBits |
+	discardedBits := (alignment - 1) highBit.
+	^ discardedBits <= 0
+		ifTrue: [ self ]
+		ifFalse: [ (self bit: 1 + discardedBits count: bits - discardedBits) ,
+				(VCConstantInteger new value: 0; bits: discardedBits; yourself)  ]
+]
+
 { #category : #packing }
 VCExpression >> bit: bitIndex [
 	^ self bit: bitIndex count: 1
@@ -187,6 +197,11 @@ VCExpression >> isExpression [
 	^ true
 ]
 
+{ #category : #packing }
+VCExpression >> lastBit [
+	^ self bit: self bits
+]
+
 { #category : #'logical operations' }
 VCExpression >> not [
 	^ self bitInvert
@@ -198,7 +213,29 @@ VCExpression >> notEquals: other [
 ]
 
 { #category : #packing }
+VCExpression >> repeat: repeatCount [
+	^ owner addElement: (VCBitRepeat new
+		wire: self;
+		count: repeatCount;
+		bits: bits*repeatCount;
+		yourself)
+]
+
+{ #category : #packing }
 VCExpression >> splitBits: bitSizes [
+	| index result |
+	index := bits.
+	result := bitSizes collect: [ :size |
+		index := index - size.
+		self bit: index + 1 count: size.
+	].
+
+	self assert: index = 0.
+	^ result
+]
+
+{ #category : #packing }
+VCExpression >> splitBitsReverse: bitSizes [
 	| index result |
 	index := 1.
 	result := bitSizes collect: [ :size |

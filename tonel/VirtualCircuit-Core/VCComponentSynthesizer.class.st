@@ -42,9 +42,7 @@ VCComponentSynthesizer >> addWire: wireName assignment: value [
 VCComponentSynthesizer >> convertRAMPort: port [
 	| portName |
 	port isReadPort ifTrue: [ 
-		portName := (instantiatedElements at: port ifAbsentPut: [
-			self generateSymbolPrefix: (port name ifNil: [ '_ram_port' ])
-		]).
+		portName := self getOrCreateVariableName: port.
 		^ VCSRAMReadPortSynthesis new
 			name: portName;
 			address: (self declareValue: port address);
@@ -102,7 +100,7 @@ VCComponentSynthesizer >> getOrCreateVariableName: variable [
 			wires add: variable
 		].
 	
-		self generateSymbolPrefix: (variable name ifNil: ['_local'])
+		self generateSymbolPrefix: (variable name ifNil: [variable localPrefix])
 	]
 ]
 
@@ -202,6 +200,12 @@ VCComponentSynthesizer >> visitBitExtract: bitExtract [
 { #category : #visiting }
 VCComponentSynthesizer >> visitBitPack: bitPack [
 	^ self setVariableExpression: bitPack value: [self emitBitPack: (bitPack wires collect: [ :wire | self declareValue: wire ])]
+]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitBitRepeat: bitRepeat [
+	^ self setVariableExpression: bitRepeat value:
+		[self emitBit: (self declareValue: bitRepeat wire) repeat: bitRepeat count]
 ]
 
 { #category : #visiting }

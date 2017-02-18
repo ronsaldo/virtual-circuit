@@ -40,6 +40,11 @@ VCRegister >> isRegister [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+VCRegister >> localPrefix [
+	^ '_register'
+]
+
 { #category : #testing }
 VCRegister >> needsClock [
 	^ true

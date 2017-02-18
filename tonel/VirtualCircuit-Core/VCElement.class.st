@@ -67,6 +67,11 @@ VCElement >> isVirtualCircuitElement [
 	^ true
 ]
 
+{ #category : #'as yet unclassified' }
+VCElement >> localPrefix [
+	^ '_local'
+]
+
 { #category : #accessing }
 VCElement >> name [
 	^ name

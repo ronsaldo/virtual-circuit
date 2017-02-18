@@ -48,8 +48,18 @@ VCStateMachineBuilder >> register [
 ]
 
 { #category : #accessing }
+VCStateMachineBuilder >> state: stateName [
+	^ states at: stateName
+]
+
+{ #category : #accessing }
 VCStateMachineBuilder >> state: state do: actions [
 	(states at: state) do: actions
+]
+
+{ #category : #accessing }
+VCStateMachineBuilder >> stateBits [
+	^ register bits
 ]
 
 { #category : #accessing }

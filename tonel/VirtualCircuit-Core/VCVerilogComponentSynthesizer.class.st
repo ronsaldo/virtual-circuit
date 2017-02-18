@@ -49,11 +49,18 @@ VCVerilogComponentSynthesizer >> emitBit: index count: count extract: wire [
 	^ ByteString streamContents: [ :out |
 		out nextPutAll: wire; nextPut: $[.
 		count > 1 ifTrue: [
-			out print: index + count - 1; nextPut: $:; print: index - 1
+			out print: index + count - 2; nextPut: $:; print: index - 1
 		] ifFalse: [ 
 			out print: index - 1
 		].
 		out nextPut: $].
+	]
+]
+
+{ #category : #'code generation' }
+VCVerilogComponentSynthesizer >> emitBit: bit repeat: count [
+	^ ByteString streamContents: [ :out |
+		out nextPut: ${; nextPutAll: count asString; nextPut: ${; nextPutAll: bit; nextPutAll: '}}'
 	]
 ]
 
@@ -146,7 +153,7 @@ VCVerilogComponentSynthesizer >> emitRAMReadPort: port unclockedImplementationFo
 
 { #category : #'code generation' }
 VCVerilogComponentSynthesizer >> emitRAMReadPortDeclaration: port for: ram into: out [
-	out tab; nextPutAll: ('wire [{2}:0] {1};' format: {port name . port depth}); lf.
+	"out tab; nextPutAll: ('wire [{2}:0] {1};' format: {port name . port depth}); lf."
 	ram ram distributed ifFalse: [
 		out tab; nextPutAll: ('reg [{2}:0] {1}_address;' format: {port name . port depth}); lf.
 	]

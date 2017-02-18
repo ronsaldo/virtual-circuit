@@ -3,8 +3,8 @@ Class {
 	#superclass : #VCExpression,
 	#instVars : [
 		'wire',
-		'index',
-		'count'
+		'count',
+		'index'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -27,7 +27,8 @@ VCBitExtract >> index [
 
 { #category : #accessing }
 VCBitExtract >> index: anObject [
-	index := anObject
+	index := anObject.
+	self assert: index > 0.
 ]
 
 { #category : #accessing }
