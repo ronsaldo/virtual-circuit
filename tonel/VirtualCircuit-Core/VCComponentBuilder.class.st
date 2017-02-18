@@ -49,11 +49,28 @@ VCComponentBuilder >> component: aComponent [
 	component := aComponent
 ]
 
+{ #category : #constants }
+VCComponentBuilder >> const: value bits: bitCount [
+	^ value asVCElementFor: component bits: bitCount
+]
+
 { #category : #registers }
 VCComponentBuilder >> distributedRam: size depth: depth [
 	^ (self ram: size depth: depth)
 		distributed: true;
 		yourself
+]
+
+{ #category : #registers }
+VCComponentBuilder >> immediateVariable [
+	^ self immediateVariable: 1
+]
+
+{ #category : #registers }
+VCComponentBuilder >> immediateVariable: bits [
+	^ component addElement: (VCVariable new
+		bits: bits;
+		yourself)
 ]
 
 { #category : #pins }
@@ -86,9 +103,50 @@ VCComponentBuilder >> instance: aComponent [
 
 { #category : #'memory bus' }
 VCComponentBuilder >> memoryBusMasterInterface: interfaceName [
+	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: ''
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusMasterInterface: interfaceName prefix: prefix [
+	^ self memoryBusMasterInterface: interfaceName prefix: prefix suffix: ''
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusMasterInterface: interfaceName prefix: prefix suffix: suffix [
 	^ (VCMemoryBusMaster subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+		busPrefix: prefix;
+		busSuffix: suffix;
 		builder: self;
 		yourself
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusMasterInterface: interfaceName suffix: suffix [
+	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: suffix
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusSlaveInterface: interfaceName [
+	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: ''
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusSlaveInterface: interfaceName prefix: prefix [
+	^ self memoryBusSlaveInterface: interfaceName prefix: prefix suffix: ''
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusSlaveInterface: interfaceName prefix: prefix suffix: suffix [
+	^ (VCMemoryBusSlave subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+		busPrefix: prefix;
+		busSuffix: suffix;
+		builder: self;
+		yourself
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> memoryBusSlaveInterface: interfaceName suffix: suffix [
+	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: suffix
 ]
 
 { #category : #pins }
@@ -103,11 +161,13 @@ VCComponentBuilder >> output: inputName bits: bits [
 
 { #category : #pins }
 VCComponentBuilder >> output: pinName bits: bits value: value [
-	^ component addPin: (VCOutputPin new
+	| result |
+	result := component addPin: (VCOutputPin new
 		name: pinName;
 		bits: bits;
-		value: value
-	)
+		yourself).
+	result value: value.
+	^ result
 ]
 
 { #category : #pins }

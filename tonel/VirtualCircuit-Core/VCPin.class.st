@@ -22,6 +22,21 @@ VCPin >> component: anObject [
 	component := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+VCPin >> connectWith: anotherPin [ 
+	self subclassResponsibility
+]
+
+{ #category : #'as yet unclassified' }
+VCPin >> connectWithSinkPin: sinkPin [
+	sinkPin value: self.
+]
+
+{ #category : #'as yet unclassified' }
+VCPin >> connectWithSourcePin: sourcePin [
+	self value: sourcePin.
+]
+
 { #category : #testing }
 VCPin >> isInput [
 	^ false

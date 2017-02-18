@@ -8,6 +8,11 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #converting }
+VCRegisterAssignment >> asVCElementFor: anOwner bits: bitCount [
+	^ value asVCElementFor: anOwner bits: bitCount
+]
+
 { #category : #'as yet unclassified' }
 VCRegisterAssignment >> on: condition applyInComponent: component [
 	register value: (condition ifTrue: value ifFalse: register value)

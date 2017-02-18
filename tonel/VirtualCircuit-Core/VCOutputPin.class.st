@@ -14,6 +14,11 @@ VCOutputPin >> asInstancePin [
 	^ (self as: VCInstanceOutputPin) value: nil; yourself.
 ]
 
+{ #category : #'as yet unclassified' }
+VCOutputPin >> connectWith: anotherPin [ 
+	anotherPin connectWithSinkPin: self
+]
+
 { #category : #testing }
 VCOutputPin >> isOutput [
 	^ true

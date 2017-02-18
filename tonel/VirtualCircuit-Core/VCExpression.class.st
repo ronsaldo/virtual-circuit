@@ -13,12 +13,32 @@ VCExpression >> & other [
 	
 ]
 
+{ #category : #'logical operations' }
+VCExpression >> * other [
+	^ owner addElement: (VCLogicalOperation operation: #* bits: bits first: self second: (self adaptElement: other))
+]
+
+{ #category : #'logical operations' }
+VCExpression >> + other [
+	^ owner addElement: (VCLogicalOperation operation: #+ bits: bits first: self second: (self adaptElement: other))
+]
+
 { #category : #packing }
 VCExpression >> , other [
 	^ owner addElement: (VCBitPack new
 		wires: {self . other asVCElementFor: owner };
 		computeBitCount;
 		yourself)
+]
+
+{ #category : #'logical operations' }
+VCExpression >> - other [
+	^ owner addElement: (VCLogicalOperation operation: #- bits: bits first: self second: (self adaptElement: other))
+]
+
+{ #category : #'logical operations' }
+VCExpression >> / other [
+	^ owner addElement: (VCLogicalOperation operation: #/ bits: bits first: self second: (self adaptElement: other))
 ]
 
 { #category : #'logical operations' }
@@ -52,7 +72,6 @@ VCExpression >> bit: bitIndex count: bitCount [
 
 { #category : #'logical operations' }
 VCExpression >> bitAnd: other [
-	self assert: bits = other bits.
 	^ owner addElement: (VCLogicalOperation operation: #and bits: bits first: self second: (self adaptElement: other))
 ]
 
@@ -93,13 +112,11 @@ VCExpression >> bitLogicalRightShift: shiftAmount bits: resultBits [
 
 { #category : #'logical operations' }
 VCExpression >> bitOr: other [
-	self assert: bits = other bits.
 	^ owner addElement: (VCLogicalOperation operation: #or bits: bits first: self second: (self adaptElement: other))
 ]
 
 { #category : #'logical operations' }
 VCExpression >> bitXor: other [
-	self assert: bits = other bits.
 	^ owner addElement: (VCLogicalOperation operation: #xor bits: bits first: self second: (self adaptElement: other))
 ]
 
@@ -180,6 +197,36 @@ VCExpression >> notEquals: other [
 	^ owner addElement: (VCLogicalOperation operation: #notEquals bits: 1 first: self second: (self adaptElement: other))
 ]
 
+{ #category : #packing }
+VCExpression >> splitBits: bitSizes [
+	| index result |
+	index := 1.
+	result := bitSizes collect: [ :size |
+		|value|
+		value := self bit: index count: size.
+		index := index + size.
+		value
+	].
+
+	self assert: index = (bits + 1).
+	^ result
+]
+
+{ #category : #conditions }
+VCExpression >> whenFalse: action [
+	^ self whenTrue: nil whenFalse: action
+]
+
+{ #category : #conditions }
+VCExpression >> whenFalse: falseAction whenTrue: trueAction [
+	self assert: bits = 1.
+	^ VCConditionalAction new
+		condition: self;
+		trueAction: trueAction asVCSequentialAction;
+		falseAction: falseAction asVCSequentialAction;
+		yourself
+]
+
 { #category : #conditions }
 VCExpression >> whenFalseDo: actions [
 	self assert: bits = 1.
@@ -187,11 +234,24 @@ VCExpression >> whenFalseDo: actions [
 ]
 
 { #category : #conditions }
-VCExpression >> whenTrueDo: actions [
+VCExpression >> whenTrue: action [
+	^ self whenTrue: action whenFalse: nil
+]
+
+{ #category : #conditions }
+VCExpression >> whenTrue: trueAction whenFalse: falseAction [
 	self assert: bits = 1.
-	actions do: [ :action |
-		action on: self applyInComponent: owner
-	]
+	^ VCConditionalAction new
+		condition: self;
+		trueAction: trueAction asVCSequentialAction;
+		falseAction: falseAction asVCSequentialAction;
+		yourself
+]
+
+{ #category : #conditions }
+VCExpression >> whenTrueDo: action [
+	self assert: bits = 1.
+	action asVCSequentialAction on: self applyInComponent: owner
 ]
 
 { #category : #'logical operations' }

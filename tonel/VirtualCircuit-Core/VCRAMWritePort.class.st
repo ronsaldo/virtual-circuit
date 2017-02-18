@@ -26,6 +26,16 @@ VCRAMWritePort >> address: anObject [
 ]
 
 { #category : #accessing }
+VCRAMWritePort >> at: newAddress put: newValue [
+	^ VCRAMWritePortAction new
+		port: self;
+		address: (newAddress asVCElementFor: owner bits: ram addressBits);
+		value: (self adaptElement: newValue);
+		yourself
+		
+]
+
+{ #category : #accessing }
 VCRAMWritePort >> enabled [
 	^ enabled
 ]
@@ -58,6 +68,14 @@ VCRAMWritePort >> ram [
 { #category : #accessing }
 VCRAMWritePort >> ram: anObject [
 	ram := anObject
+]
+
+{ #category : #initialization }
+VCRAMWritePort >> setDefaultValues [
+	address := 0 asVCElementFor: owner bits: ram addressBits.
+	value := self adaptElement: 0.
+	enabled := self adaptElement: false.
+	
 ]
 
 { #category : #accessing }

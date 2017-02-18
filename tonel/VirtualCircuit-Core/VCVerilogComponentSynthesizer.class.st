@@ -23,6 +23,10 @@ VCVerilogComponentSynthesizer class >> initialize [
 		equals ==
 		notEquals !=
 		
+		+ +
+		- -
+		* *
+		/ /
 	)
 ]
 

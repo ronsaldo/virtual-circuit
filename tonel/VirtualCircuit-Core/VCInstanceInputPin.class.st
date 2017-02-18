@@ -12,6 +12,11 @@ VCInstanceInputPin >> accept: aVisitor [
 	^ aVisitor visitInstanceInputPin: self
 ]
 
+{ #category : #'as yet unclassified' }
+VCInstanceInputPin >> connectWith: anotherPin [ 
+	anotherPin connectWithSinkPin: self
+]
+
 { #category : #accessing }
 VCInstanceInputPin >> instance [
 	^ instance

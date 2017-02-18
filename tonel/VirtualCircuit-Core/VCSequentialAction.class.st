@@ -4,7 +4,12 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #converting }
+VCSequentialAction >> asVCSequentialAction [
+	^ self
+]
+
+{ #category : #accessing }
 VCSequentialAction >> on: condition applyInComponent: component [
 	self subclassResponsibility
 ]

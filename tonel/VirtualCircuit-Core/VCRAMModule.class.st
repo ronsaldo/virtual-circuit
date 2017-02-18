@@ -17,6 +17,11 @@ VCRAMModule >> accept: aVisitor [
 ]
 
 { #category : #accessing }
+VCRAMModule >> addressBits [
+	^ (size - 1) highBit
+]
+
+{ #category : #accessing }
 VCRAMModule >> clock [
 	^ clock
 ]
@@ -68,10 +73,11 @@ VCRAMModule >> read: address [
 	| port |
 	port := VCRAMReadPort new
 		ram: self;
+		bits: depth;
 		address: address;
 		yourself.
 	ports add: port.
-	^ port
+	^ owner addElement: port
 ]
 
 { #category : #accessing }
@@ -89,10 +95,22 @@ VCRAMModule >> write: address value: value when: writeEnabled [
 	| port |
 	port := VCRAMWritePort new
 		ram: self;
+		bits: depth;
 		address: address;
 		enabled: writeEnabled;
 		value: value;
 		yourself.
 	ports add: port.
-	^ port
+	^ owner addElement: port
+]
+
+{ #category : #'meta-object-protocol' }
+VCRAMModule >> writePort [
+	| port |
+	port := VCRAMWritePort new
+		ram: self;
+		bits: depth;
+		yourself.
+	ports add: port.
+	^ owner addElement: port
 ]

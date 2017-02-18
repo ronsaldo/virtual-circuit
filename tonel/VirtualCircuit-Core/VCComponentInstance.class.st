@@ -65,6 +65,56 @@ VCComponentInstance >> isComponentInstance [
 	^ true
 ]
 
+{ #category : #bus }
+VCComponentInstance >> memoryBusMasterInterface: interfaceName [
+	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: ''
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusMasterInterface: interfaceName prefix: prefix [
+	^ self memoryBusMasterInterface: interfaceName prefix: prefix suffix: ''
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusMasterInterface: interfaceName prefix: prefix suffix: suffix [
+	^ (VCMemoryBusMaster subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+		busPrefix: prefix;
+		busSuffix: suffix;
+		instance: self;
+		createPortsWithoutController;
+		yourself
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusMasterInterface: interfaceName suffix: suffix [
+	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: suffix
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusSlaveInterface: interfaceName [
+	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: ''
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusSlaveInterface: interfaceName prefix: prefix [
+	^ self memoryBusSlaveInterface: interfaceName prefix: prefix suffix: ''
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusSlaveInterface: interfaceName prefix: prefix suffix: suffix [
+	^ (VCMemoryBusSlave subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+		busPrefix: prefix;
+		busSuffix: suffix;
+		instance: self;
+		createPortsWithoutController;
+		yourself
+]
+
+{ #category : #bus }
+VCComponentInstance >> memoryBusSlaveInterface: interfaceName suffix: suffix [
+	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: suffix
+]
+
 { #category : #'as yet unclassified' }
 VCComponentInstance >> needsClock [
 	^ baseComponent needsClock

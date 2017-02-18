@@ -4,3 +4,8 @@ Extension { #name : #UndefinedObject }
 UndefinedObject >> asVCElementFor: anOwner bits: bitCoint [
 	^ self
 ]
+
+{ #category : #'*VirtualCircuit-Core' }
+UndefinedObject >> asVCSequentialAction [
+	^ VCNopAction new
+]

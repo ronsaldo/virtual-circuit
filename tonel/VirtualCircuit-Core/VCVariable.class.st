@@ -15,6 +15,11 @@ VCVariable >> <== newValue [
 		yourself
 ]
 
+{ #category : #visiting }
+VCVariable >> accept: aVisitor [
+	^ aVisitor visitVariable: self
+]
+
 { #category : #visualization }
 VCVariable >> addRoassalEdgesFrom: element toView: view [
 	value isVirtualCircuitElement ifTrue: [
@@ -25,6 +30,16 @@ VCVariable >> addRoassalEdgesFrom: element toView: view [
 { #category : #testing }
 VCVariable >> isVariable [
 	^ true
+]
+
+{ #category : #accessing }
+VCVariable >> maxValue [
+	^ (1 << bits) - 1
+]
+
+{ #category : #accessing }
+VCVariable >> minValue [
+	^ 0
 ]
 
 { #category : #initialization }

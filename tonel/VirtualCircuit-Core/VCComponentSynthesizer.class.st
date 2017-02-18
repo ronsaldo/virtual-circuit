@@ -296,3 +296,10 @@ VCComponentSynthesizer >> visitSelectCondition: selectCondition [
 			trueValue: (self declareValue: selectCondition trueValue)
 			falseValue: (self declareValue: selectCondition falseValue)]
 ]
+
+{ #category : #visiting }
+VCComponentSynthesizer >> visitVariable: variable [
+	^ self
+		setVariableExpression: variable
+		value: [self declareValue: variable value]
+]

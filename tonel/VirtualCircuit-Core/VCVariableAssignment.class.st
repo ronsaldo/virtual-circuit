@@ -8,6 +8,11 @@ Class {
 	#category : #'VirtualCircuit-Core-Circuit'
 }
 
+{ #category : #converting }
+VCVariableAssignment >> asVCElementFor: anOwner bits: bitCount [
+	^ value asVCElementFor: anOwner bits: bitCount
+]
+
 { #category : #accessing }
 VCVariableAssignment >> on: condition applyInComponent: component [
 	variable value ifNil: [ variable setDefaultValue ].

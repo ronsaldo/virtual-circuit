@@ -1,26 +1,12 @@
 Class {
 	#name : #VCMemoryBusMaster,
-	#superclass : #Object,
-	#instVars : [
-		'builder'
-	],
-	#category : #'VirtualCircuit-Core-Circuit'
+	#superclass : #VCBus,
+	#category : #'VirtualCircuit-Core-Bus'
 }
 
 { #category : #'as yet unclassified' }
 VCMemoryBusMaster class >> interfaceName [
 	self subclassResponsibility
-]
-
-{ #category : #accessing }
-VCMemoryBusMaster >> builder [
-	^ builder
-]
-
-{ #category : #accessing }
-VCMemoryBusMaster >> builder: anObject [
-	builder := anObject.
-	self createInterface
 ]
 
 { #category : #enumerating }

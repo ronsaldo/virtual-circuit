@@ -31,8 +31,8 @@ VCStateMachineState >> condition: anObject [
 ]
 
 { #category : #enumerating }
-VCStateMachineState >> do: moreActions [
-	moreActions do: [ :action | action on: condition applyInComponent: component ]
+VCStateMachineState >> do: newAction [
+	newAction asVCSequentialAction on: condition applyInComponent: component
 ]
 
 { #category : #enumerating }
