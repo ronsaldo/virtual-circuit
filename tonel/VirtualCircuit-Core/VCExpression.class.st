@@ -66,7 +66,7 @@ VCExpression >> bit: bitIndex count: bitCount [
 	^ owner addElement: (VCBitExtract new
 		wire: self;
 		index: bitIndex;
-		count: bitCount;
+		bits: bitCount;
 		yourself)
 ]
 

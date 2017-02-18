@@ -21,16 +21,6 @@ VCBitExtract >> addRoassalEdgesFrom: element toView: view [
 ]
 
 { #category : #accessing }
-VCBitExtract >> count [
-	^ count
-]
-
-{ #category : #accessing }
-VCBitExtract >> count: anObject [
-	count := anObject
-]
-
-{ #category : #accessing }
 VCBitExtract >> index [
 	^ index
 ]

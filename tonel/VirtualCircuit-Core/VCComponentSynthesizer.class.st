@@ -196,7 +196,7 @@ VCComponentSynthesizer >> synthesizeComponent: aComponent into: aModule [
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitBitExtract: bitExtract [
-	^ self setVariableExpression: bitExtract value: [self emitBit: bitExtract index count: bitExtract count extract: (self declareValue: bitExtract wire )]
+	^ self setVariableExpression: bitExtract value: [self emitBit: bitExtract index count: bitExtract bits extract: (self declareValue: bitExtract wire )]
 ]
 
 { #category : #visiting }
