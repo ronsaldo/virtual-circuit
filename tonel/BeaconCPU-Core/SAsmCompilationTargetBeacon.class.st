@@ -2,7 +2,7 @@ Class {
 	#name : #SAsmCompilationTargetBeacon,
 	#superclass : #SAsmCompilationTarget,
 	#pools : [
-		'BeaconSlowCPU'
+		'AnObsoleteBeaconSlowCPUOld'
 	],
 	#category : #'BeaconCPU-Core-ISA'
 }

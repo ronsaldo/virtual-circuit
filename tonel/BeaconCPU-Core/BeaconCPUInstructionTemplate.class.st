@@ -19,6 +19,11 @@ BeaconCPUInstructionTemplate >> computeMaximalSizeFor: instruction [
 ]
 
 { #category : #accessing }
+BeaconCPUInstructionTemplate >> instructionTemplateName [
+	^ self class instructionTemplateName
+]
+
+{ #category : #accessing }
 BeaconCPUInstructionTemplate >> name [
 	^ name
 ]

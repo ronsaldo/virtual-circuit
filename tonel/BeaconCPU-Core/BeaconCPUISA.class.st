@@ -27,6 +27,7 @@ Class {
 		'BeaconConditionCodes',
 		'BeaconInstructionTemplates',
 		'BeaconIntegerRegisters',
+		'BeaconOpcodeGroups',
 		'BeaconOpcodes',
 		'C',
 		'DIV',
@@ -368,7 +369,8 @@ BeaconCPUISA class >> initializeConditionCodes [
 
 { #category : #initialization }
 BeaconCPUISA class >> initializeConstants [
-	BeaconCPUBootAddress := 16rFFFFFFFFFFFFFFF8.
+	"BeaconCPUBootAddress := 16rFFFFFFFFFFFFFFF8."
+	BeaconCPUBootAddress := 0.
 ]
 
 { #category : #initialization }
@@ -394,7 +396,9 @@ BeaconCPUISA class >> initializeOpcodes [
 		(HALT control)
 	) collectWithIndex: [ :opcodeDefinition :index |
 		self declareOpcode: opcodeDefinition first type: opcodeDefinition second value: index - 1
-	]
+	].
+
+	BeaconOpcodeGroups := BeaconOpcodes groupedBy: [ :op | op instructionTemplateName ].
 ]
 
 { #category : #initialization }
