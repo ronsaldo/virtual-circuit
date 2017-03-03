@@ -115,10 +115,15 @@ VCComponent >> autoReset: resetPinName [
 { #category : #building }
 VCComponent >> build: aBlock [
 	| builder |
-	builder := VCComponentBuilder new component: self.
+	builder := self builder.
 	aBlock cull: builder cull: self.
 	self addAsDependency.
 	^ self
+]
+
+{ #category : #building }
+VCComponent >> builder [
+	^ VCComponentBuilder new component: self.
 ]
 
 { #category : #accessing }

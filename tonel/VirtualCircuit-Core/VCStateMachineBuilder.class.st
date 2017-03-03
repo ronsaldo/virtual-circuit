@@ -5,7 +5,8 @@ Class {
 		'builder',
 		'initial',
 		'states',
-		'register'
+		'register',
+		'name'
 	],
 	#category : #'VirtualCircuit-Core-Circuit'
 }
@@ -40,6 +41,13 @@ VCStateMachineBuilder >> initial: aStateName [
 VCStateMachineBuilder >> initialize [
 	super initialize.
 	states := Dictionary new.
+	name := ''
+]
+
+{ #category : #accessing }
+VCStateMachineBuilder >> name: aName [
+	name := aName.
+	
 ]
 
 { #category : #accessing }
@@ -72,14 +80,17 @@ VCStateMachineBuilder >> states: anArray [
 	| stateBits |
 	anArray assert: anArray isNotEmpty.
 	states := IdentityDictionary new.
-	stateBits := anArray size - 1 highBit.
+	stateBits := (anArray size - 1) highBit.
 	register := builder register: stateBits.
+	register name: (name , #state) asSymbol.
 	
 	anArray doWithIndex: [ :stateName :index |
 		states at: stateName put: (VCStateMachineState new
 			name: stateName;
 			value: index - 1;
-			condition: (register equals: index - 1);
+			condition: ((register equals: index - 1)
+				name: (name , stateName , #_condition) asSymbol;
+				yourself);
 			component: builder component;
 			yourself)
 	].

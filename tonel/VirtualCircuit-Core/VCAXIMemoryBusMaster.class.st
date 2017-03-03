@@ -19,7 +19,11 @@ Class {
 		'writeAddressValid',
 		'writeAddressReady',
 		'writeAction',
-		'writeActionCount'
+		'writeActionCount',
+		'writeDone',
+		'writeStateMachine',
+		'readDone',
+		'readStateMachine'
 	],
 	#category : #'VirtualCircuit-Core-Bus'
 }
@@ -62,30 +66,8 @@ VCAXIMemoryBusMaster class >> portDesc [
 
 { #category : #'as yet unclassified' }
 VCAXIMemoryBusMaster >> createController [
-	"Read only one address at time."
-	readAddressReady whenTrueDo: {
-		readAddressValid <== false
-	}.
-	
-	readAction := builder register.
-	readActionCount := 0.
-	
-	readValid whenTrueDo: {
-		readReady <== 0.
-		readAction <== 0
-	}.
-		
-	writeAddressReady whenTrueDo: {
-		writeAddressValid <== false
-	}.
-	
-	writeAction := builder register.
-	writeActionCount := 0.
-	
-	writeReady whenTrueDo: {
-		writeValid <== 0.
-		writeAction <== 0
-	}.
+	self createReadController.
+	self createWriteController.
 ]
 
 { #category : #ports }
@@ -111,16 +93,81 @@ VCAXIMemoryBusMaster >> createPorts [
 VCAXIMemoryBusMaster >> createReadAction: anAction [
 	readActionCount := readActionCount + 1.
 	readActionCount highBit > readAction bits ifTrue: [ readAction bits: readAction bits + 1 ].
-	(readValid & (readAction equals: readActionCount)) whenTrueDo: anAction.
+	(readDone & (readAction equals: readActionCount)) whenTrueDo: anAction.
 	^ readActionCount
+]
+
+{ #category : #'as yet unclassified' }
+VCAXIMemoryBusMaster >> createReadController [
+	readDone := builder immediateVariable value: false.
+	
+	readStateMachine := builder stateMachine.
+	readStateMachine states: #(waitAddress waitRead);
+		initial: #waitAddress;
+		state: #waitAddress do: {
+			readReady <== false.
+			readAddressValid & readAddressReady whenTrue: { 
+				readStateMachine <== #waitRead
+			}
+		};
+		state: #waitRead do: { 
+			readAddressValid <== false.
+			readReady <== true.
+			
+			readValid & readReady whenTrue: {
+				readDone <== true.
+				readReady <== false.
+				readStateMachine <== #waitAddress
+			}
+		}.
+	
+	readAction := builder register name: #memReadAction.
+	readActionCount := 0.
+	
+	readDone whenTrueDo: {
+		readAction <== 0
+	}.
+		
 ]
 
 { #category : #enumerating }
 VCAXIMemoryBusMaster >> createWriteAction: anAction [
 	writeActionCount := writeActionCount + 1.
 	writeActionCount highBit > writeAction bits ifTrue: [ writeAction bits: writeAction bits + 1 ].
-	(writeReady & writeAction equals: writeActionCount) whenTrueDo: anAction.
+	(writeDone & (writeAction equals: writeActionCount)) whenTrueDo: anAction.
 	^ writeActionCount
+]
+
+{ #category : #'as yet unclassified' }
+VCAXIMemoryBusMaster >> createWriteController [
+	writeDone := builder immediateVariable value: false.
+	
+	writeStateMachine := builder stateMachine.
+	writeStateMachine states: #(waitAddress waitWrite);
+		initial: #waitAddress;
+		state: #waitAddress do: {
+			writeValid <== false.
+			writeAddressValid & writeAddressReady whenTrue: { 
+				writeStateMachine <== #waitWrite
+			}
+		};
+		state: #waitWrite do: { 
+			writeAddressValid <== false.
+			writeValid <== true.
+			
+			writeValid & writeReady whenTrue: {
+				writeDone <== true.
+				writeValid <== false.
+				writeStateMachine <== #waitAddress
+			}
+		}.
+	
+	writeAction := builder register name: #memWriteAction.
+	writeActionCount := 0.
+	
+	writeDone whenTrueDo: {
+		writeAction <== 0
+	}.
 ]
 
 { #category : #enumerating }
@@ -173,6 +220,27 @@ VCAXIMemoryBusMaster >> readResponse [
 { #category : #'port accessors' }
 VCAXIMemoryBusMaster >> readValid [
 	^ readValid
+]
+
+{ #category : #enumerating }
+VCAXIMemoryBusMaster >> write: anAddress value: value strobe: strobe whenFinishedDo: writeFinishAction [
+	^ self write: anAddress value: value strobe: 2r1111 whenFinishedDo: writeFinishAction
+]
+
+{ #category : #enumerating }
+VCAXIMemoryBusMaster >> write: anAddress value: value whenFinishedDo: writeFinishAction [
+	| writeActionIndex |
+	writeActionIndex := self createWriteAction: {
+		writeFinishAction
+	}.
+	
+	^ { 
+		writeAddress <== anAddress.
+		writeAddressValid <== true.
+		writeData <== value.
+		writeAction <== writeActionIndex.
+	}.
+
 ]
 
 { #category : #'port accessors' }

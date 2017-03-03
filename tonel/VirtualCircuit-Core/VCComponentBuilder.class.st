@@ -199,6 +199,7 @@ VCComponentBuilder >> outputRegister: inputName [
 VCComponentBuilder >> outputRegister: inputName bits: bits [
 	| result |
 	result := self register: bits.
+	result name: inputName.
 	self output: inputName bits: bits value: result.
 	^ result
 ]

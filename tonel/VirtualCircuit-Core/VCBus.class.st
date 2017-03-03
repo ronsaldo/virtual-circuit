@@ -145,6 +145,7 @@ VCBus >> createPorts [
 { #category : #'as yet unclassified' }
 VCBus >> createPortsWithController [
 	hasController := true.
+	ports removeAll.
 	self createPorts;
 		createController
 ]
@@ -152,6 +153,7 @@ VCBus >> createPortsWithController [
 { #category : #'as yet unclassified' }
 VCBus >> createPortsWithoutController [
 	hasController := false.
+	ports removeAll.
 	self createPorts.
 ]
 
@@ -200,6 +202,7 @@ VCBus >> outputRegister: portName bits: bitCount [
 	instance ifNotNil: [
 		(builder isNotNil and: [ hasController]) ifTrue: [ 
 			result := builder register: bitCount.
+			result name: (portName , #_reg) asSymbol.
 			instance pin: portName asSymbol value: result.
 			^ self addPort: result
 		].

@@ -31,10 +31,8 @@ VCConditionalAction >> falseAction: anObject [
 
 { #category : #accessing }
 VCConditionalAction >> on: extraCondition applyInComponent: component [
-	| composedCondition |
-	composedCondition := condition & extraCondition.
-	trueAction on: composedCondition applyInComponent: component.
-	falseAction on: composedCondition not applyInComponent: component.
+	trueAction on: condition & extraCondition applyInComponent: component.
+	falseAction on: condition not & extraCondition applyInComponent: component.
 ]
 
 { #category : #accessing }
