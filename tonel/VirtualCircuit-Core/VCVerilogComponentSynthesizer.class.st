@@ -20,6 +20,7 @@ VCVerilogComponentSynthesizer class >> initialize [
 		xor ^
 		lshift <<
 		lrshift >>
+		arshift >>>
 		equals ==
 		notEquals !=
 		
