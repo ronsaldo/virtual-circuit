@@ -21,6 +21,7 @@ Class {
 		'A',
 		'ADD',
 		'AE',
+		'ARSHIFT',
 		'B',
 		'BE',
 		'BeaconCPUBootAddress',
@@ -36,8 +37,18 @@ Class {
 		'GE',
 		'GT',
 		'HALT',
+		'LDB',
+		'LDQ',
+		'LDS',
+		'LDSPR',
+		'LDW',
+		'LDZB',
+		'LDZQ',
+		'LDZS',
+		'LDZW',
 		'LE',
 		'LR',
+		'LSHIFT',
 		'LT',
 		'MUL',
 		'NA',
@@ -91,9 +102,16 @@ Class {
 		'R8',
 		'R9',
 		'REM',
+		'RSHIFT',
 		'S',
 		'SP',
+		'STB',
+		'STQ',
+		'STS',
+		'STSPR',
+		'STW',
 		'SUB',
+		'SpecialRegister_Ticks',
 		'Z'
 	],
 	#category : #'BeaconCPU-Core-ISA'
@@ -259,9 +277,19 @@ BeaconCPUISA class >> SP [
 		^ SP
 ]
 
+{ #category : #registers }
+BeaconCPUISA class >> SpecialRegister_Ticks [
+		^ SpecialRegister_Ticks
+]
+
 { #category : #opcodes }
 BeaconCPUISA class >> add [
 	^ ADD
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> arshift [
+	^ ARSHIFT
 ]
 
 { #category : #initialization }
@@ -313,6 +341,19 @@ BeaconCPUISA class >> declareRegisterAccessor: registerName [
 		^ {1}' format: {registerName }) classified: 'registers'
 ]
 
+{ #category : #initialization }
+BeaconCPUISA class >> declareSpecialRegister: specialRegisterName value: registerIndex [
+	| registerName |
+	registerName := (#SpecialRegister_ , specialRegisterName) asSymbol.
+	(self hasClassVarNamed: registerName) ifFalse: [ 
+		self addClassVarNamed: registerName.
+	].
+
+	self classVarNamed: registerName put: registerIndex.
+	self declareRegisterAccessor: registerName.
+	^ self classVarNamed: registerName
+]
+
 { #category : #opcodes }
 BeaconCPUISA class >> div [
 	^ DIV
@@ -326,6 +367,7 @@ BeaconCPUISA class >> halt [
 { #category : #initialization }
 BeaconCPUISA class >> initialize [
 	self initializeRegisters.
+	self initializeSpecialRegisters.
 	self initializeConditionCodes.
 	self initializeInstructionTemplates.
 	self initializeOpcodes.
@@ -376,7 +418,7 @@ BeaconCPUISA class >> initializeConstants [
 { #category : #initialization }
 BeaconCPUISA class >> initializeInstructionTemplates [
 	BeaconInstructionTemplates := IdentityDictionary new.
-	BeaconCPUInstructionTemplate subclassesDo: [ :template |
+	BeaconCPUInstructionTemplate allSubclassesDo: [ :template |
 		BeaconInstructionTemplates at: template instructionTemplateName put: template
 	]
 ]
@@ -391,6 +433,27 @@ BeaconCPUISA class >> initializeOpcodes [
 		(MUL alu)
 		(DIV alu)
 		(REM alu)
+		(ARSHIFT alu)
+		(RSHIFT alu)
+		(LSHIFT alu)
+		
+		"Memory Load/Store"
+		(LDB memoryLoad)
+		(LDZB memoryLoad)
+		(LDS memoryLoad)
+		(LDZS memoryLoad)
+		(LDW memoryLoad)
+		(LDZW memoryLoad)
+		(LDQ memoryLoad)
+		(LDZQ memoryLoad)
+				
+		(STB memoryStore)
+		(STS memoryStore)
+		(STW memoryStore)
+		(STQ memoryStore)
+		
+		(LDSPR specialRegister)
+		(STSPR specialRegister)
 		
 		"Low control"
 		(HALT control)
@@ -416,6 +479,65 @@ BeaconCPUISA class >> initializeRegisters [
 
 ]
 
+{ #category : #initialization }
+BeaconCPUISA class >> initializeSpecialRegisters [
+	#(
+		Ticks
+	) doWithIndex: [ :specialRegisterName :index |
+		self declareSpecialRegister: specialRegisterName value: index - 1
+	]
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldb [
+	^ LDB
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldq [
+	^ LDQ
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> lds [
+	^ LDS
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldspr [
+	^ LDSPR
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldw [
+	^ LDW
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldzb [
+	^ LDZB
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldzq [
+	^ LDZQ
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldzs [
+	^ LDZS
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> ldzw [
+	^ LDZW
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> lshift [
+	^ LSHIFT
+]
+
 { #category : #opcodes }
 BeaconCPUISA class >> mul [
 	^ MUL
@@ -429,6 +551,36 @@ BeaconCPUISA class >> nop [
 { #category : #opcodes }
 BeaconCPUISA class >> rem [
 	^ REM
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> rshift [
+	^ RSHIFT
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> stb [
+	^ STB
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> stq [
+	^ STQ
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> sts [
+	^ STS
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> stspr [
+	^ STSPR
+]
+
+{ #category : #opcodes }
+BeaconCPUISA class >> stw [
+	^ STW
 ]
 
 { #category : #opcodes }

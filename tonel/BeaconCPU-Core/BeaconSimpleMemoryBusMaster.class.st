@@ -18,7 +18,11 @@ Class {
 		'readAction',
 		'readActionCount',
 		'writeAction',
-		'writeActionCount'
+		'writeActionCount',
+		'writeStateMachine',
+		'writeDone',
+		'readDone',
+		'readStateMachine'
 	],
 	#category : #'BeaconCPU-Core-SlowCPU'
 }
@@ -60,29 +64,8 @@ BeaconSimpleMemoryBusMaster class >> portDesc [
 
 { #category : #'as yet unclassified' }
 BeaconSimpleMemoryBusMaster >> createController [
-	readAddressReady whenTrueDo: {
-		readAddressValid <== false
-	}.
-	
-	readAction := builder register.
-	readActionCount := 0.
-	
-	readValid whenTrueDo: {
-		readReady <== 0.
-		readAction <== 0
-	}.
-		
-	writeAddressReady whenTrueDo: {
-		writeAddressValid <== false
-	}.
-	
-	writeAction := builder register.
-	writeActionCount := 0.
-	
-	writeReady whenTrueDo: {
-		writeValid <== 0.
-		writeAction <== 0
-	}.
+	self createReadController.
+	self createWriteController.
 ]
 
 { #category : #ports }
@@ -107,19 +90,83 @@ BeaconSimpleMemoryBusMaster >> createPorts [
 BeaconSimpleMemoryBusMaster >> createReadAction: anAction [
 	readActionCount := readActionCount + 1.
 	readActionCount highBit > readAction bits ifTrue: [ readAction bits: readAction bits + 1 ].
-	(readValid & (readAction equals: readActionCount)) whenTrueDo: anAction.
+	(readDone & (readAction equals: readActionCount)) whenTrueDo: anAction.
 	^ readActionCount
+]
+
+{ #category : #'as yet unclassified' }
+BeaconSimpleMemoryBusMaster >> createReadController [
+	readDone := builder immediateVariable value: false.
+	
+	readStateMachine := builder stateMachine name: #master_readStateMachine.
+	readStateMachine states: #(waitAddress waitRead);
+		initial: #waitAddress;
+		state: #waitAddress do: {
+			readReady <== false.
+			readAddressValid & readAddressReady whenTrue: { 
+				readAddressValid <== false.
+				readReady <== true.
+				readStateMachine <== #waitRead
+			}
+		};
+		state: #waitRead do: { 		
+			readValid & readReady whenTrue: {
+				readDone <== true.
+				readReady <== false.
+				readStateMachine <== #waitAddress
+			}
+		}.
+	
+	readAction := builder register name: #memReadAction.
+	readActionCount := 0.
+	
+	readDone whenTrueDo: {
+		readAction <== 0
+	}.
+		
 ]
 
 { #category : #enumerating }
 BeaconSimpleMemoryBusMaster >> createWriteAction: anAction [
 	writeActionCount := writeActionCount + 1.
 	writeActionCount highBit > writeAction bits ifTrue: [ writeAction bits: writeAction bits + 1 ].
-	(writeReady & (writeAction equals: writeActionCount)) whenTrueDo: anAction.
+	(writeDone & (writeAction equals: writeActionCount)) whenTrueDo: anAction.
 	^ writeActionCount
 ]
 
-{ #category : #enumerating }
+{ #category : #'as yet unclassified' }
+BeaconSimpleMemoryBusMaster >> createWriteController [
+	writeDone := builder immediateVariable value: false.
+	writeDone name: #writeDone.
+	
+	writeStateMachine := builder stateMachine name: #master_writeStateMachine.
+	writeStateMachine states: #(waitAddress waitWrite);
+		initial: #waitAddress;
+		state: #waitAddress do: {
+			writeValid <== false.
+			writeAddressValid & writeAddressReady whenTrue: {
+				writeAddressValid <== false.
+				writeValid <== true.
+				writeStateMachine <== #waitWrite
+			}
+		};
+		state: #waitWrite do: { 
+			writeValid & writeReady whenTrue: {
+				writeValid <== false.
+				writeDone <== true.
+				writeStateMachine <== #waitAddress
+			}
+		}.
+	
+	writeAction := builder register name: #memWriteAction.
+	writeActionCount := 0.
+	
+	writeDone whenTrueDo: {
+		writeAction <== 0
+	}.
+]
+
+{ #category : #'memory bus' }
 BeaconSimpleMemoryBusMaster >> read: anAddress into: aRegister whenFinishedDo: readFinishAction [
 	| readActionIndex |
 	readActionIndex := self createReadAction: {
@@ -164,6 +211,28 @@ BeaconSimpleMemoryBusMaster >> readReady [
 { #category : #'port accessors' }
 BeaconSimpleMemoryBusMaster >> readValid [
 	^ readValid
+]
+
+{ #category : #'memory bus' }
+BeaconSimpleMemoryBusMaster >> write: anAddress value: value strobe: strobe whenFinishedDo: writeFinishAction [
+	| writeActionIndex |
+	writeActionIndex := self createWriteAction: {
+		writeFinishAction
+	}.
+	
+	^ { 
+		writeAddress <== anAddress.
+		writeAddressValid <== true.
+		writeData <== value.
+		writeStrobe <== strobe.
+		writeAction <== writeActionIndex.
+	}.
+
+]
+
+{ #category : #'memory bus' }
+BeaconSimpleMemoryBusMaster >> write: anAddress value: value whenFinishedDo: writeFinishAction [
+	^ self write: anAddress value: value strobe: 2r11111111 whenFinishedDo: writeFinishAction
 ]
 
 { #category : #'port accessors' }

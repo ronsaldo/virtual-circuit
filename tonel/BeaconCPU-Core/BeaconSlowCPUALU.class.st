@@ -27,8 +27,18 @@ BeaconSlowCPUALU >> computeOperationADD [
 ]
 
 { #category : #operations }
+BeaconSlowCPUALU >> computeOperationARSHIFT [
+	^ left bitArithmeticRightShift: (right bit: 1 count: 6)
+]
+
+{ #category : #operations }
 BeaconSlowCPUALU >> computeOperationDIV [
-	^ left / right
+	^ left "/ right"
+]
+
+{ #category : #operations }
+BeaconSlowCPUALU >> computeOperationLSHIFT [
+	^ left << (right bit: 1 count: 6)
 ]
 
 { #category : #operations }
@@ -44,6 +54,11 @@ BeaconSlowCPUALU >> computeOperationNOP [
 { #category : #operations }
 BeaconSlowCPUALU >> computeOperationREM [
 	^ 0
+]
+
+{ #category : #operations }
+BeaconSlowCPUALU >> computeOperationRSHIFT [
+	^ left bitLogicalRightShift: (right bit: 1 count: 6)
 ]
 
 { #category : #operations }
