@@ -1,11 +1,11 @@
 Class {
 	#name : #BeaconSamples,
 	#superclass : #Object,
-	#category : #'BeaconCPU-Core'
+	#category : #'BeaconCPU-Core-Samples'
 }
 
-{ #category : #'as yet unclassified' }
-BeaconSamples >> sampleSetLeds [
+{ #category : #examples }
+BeaconSamples class >> exampleSetLeds [
 	| romCode rom cpu board |
 	romCode := BeaconCodeSamples exampleSetLeds asOptimizedBinaryObject generateBinaryWithBase: 0.
 	rom := VCROM content: romCode wordSize: 32.
@@ -28,4 +28,8 @@ BeaconSamples >> sampleSetLeds [
 
 	board component verilogToFileNamed: 'beaconBoard.v'
 	
+]
+
+{ #category : #'see class side' }
+BeaconSamples >> seeClassSide [
 ]

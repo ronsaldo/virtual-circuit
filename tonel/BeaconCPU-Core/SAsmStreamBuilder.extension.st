@@ -41,6 +41,7 @@ SAsmStreamBuilder >> beacon: operation withOperands: operands [
 		SAsmInstruction new
 			template: operation;
 			arguments: operands;
+			validate;
 			yourself)
 ]
 

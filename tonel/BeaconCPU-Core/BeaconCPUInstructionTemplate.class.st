@@ -18,6 +18,21 @@ BeaconCPUInstructionTemplate >> computeMaximalSizeFor: instruction [
 	^ 4
 ]
 
+{ #category : #'as yet unclassified' }
+BeaconCPUInstructionTemplate >> computeSizeForInstruction: instruction with: aWriter [
+	^ 4
+]
+
+{ #category : #'as yet unclassified' }
+BeaconCPUInstructionTemplate >> findBestLongAlternativeFor: instruction [
+	^ self
+]
+
+{ #category : #'as yet unclassified' }
+BeaconCPUInstructionTemplate >> findBestShortAlternativeFor: instruction [
+	^ self
+]
+
 { #category : #accessing }
 BeaconCPUInstructionTemplate >> instructionTemplateName [
 	^ self class instructionTemplateName

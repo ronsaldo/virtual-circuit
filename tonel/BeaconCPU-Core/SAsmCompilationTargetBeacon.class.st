@@ -1,9 +1,6 @@
 Class {
 	#name : #SAsmCompilationTargetBeacon,
 	#superclass : #SAsmCompilationTarget,
-	#pools : [
-		'AnObsoleteBeaconSlowCPUOld'
-	],
 	#category : #'BeaconCPU-Core-ISA'
 }
 
@@ -16,6 +13,16 @@ SAsmCompilationTargetBeacon >> callingConventionNamed: callingConventionName [
 { #category : #'as yet unclassified' }
 SAsmCompilationTargetBeacon >> createInstructionLowerer [
 	^ SAsmBeaconInstructionLowerer new target: self
+]
+
+{ #category : #'as yet unclassified' }
+SAsmCompilationTargetBeacon >> emitNopOfSize: paddingSize with: writer [
+	| nopCount |
+	self assert: paddingSize % 4 = 0.
+	nopCount := paddingSize // 4.
+	1 to: nopCount do: [:i |
+		writer nextPutC32: 0
+	]
 ]
 
 { #category : #accessing }
