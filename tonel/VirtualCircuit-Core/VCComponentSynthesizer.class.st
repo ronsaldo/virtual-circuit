@@ -21,9 +21,10 @@ Class {
 }
 
 { #category : #adding }
-VCComponentSynthesizer >> addRegister: registerName assignment: value onClock: clockName onReset: resetName resetActiveLow: resetActiveLow resetValue: resetValue [
+VCComponentSynthesizer >> addRegister: registerName bits: bits assignment: value onClock: clockName onReset: resetName resetActiveLow: resetActiveLow resetValue: resetValue [
 	registerAssignments add: (VCSynthRegisterAssignment new
 		name: registerName;
+		bits: bits;
 		value: value;
 		clock: clockName;
 		reset: resetName;
@@ -81,6 +82,11 @@ VCComponentSynthesizer >> emitBitPack: values [
 ]
 
 { #category : #'code generation' }
+VCComponentSynthesizer >> emitFinalContent [
+	self subclassResponsibility
+]
+
+{ #category : #'code generation' }
 VCComponentSynthesizer >> emitSelectCondition: condition trueValue: trueValue falseValue: falseValue [
 	self subclassResponsibility
 ]
@@ -100,7 +106,7 @@ VCComponentSynthesizer >> getOrCreateVariableName: variable [
 			wires add: variable
 		].
 	
-		self generateSymbolPrefix: (variable name ifNil: [variable localPrefix])
+		self generateSymbolPrefix: (variable name ifNil: [self localPrefix , variable localPrefix])
 	]
 ]
 
@@ -127,6 +133,11 @@ VCComponentSynthesizer >> initialize [
 	registerAssignments := OrderedCollection new.
 	assignedVariables := IdentitySet new.
 	gensymCount := 0.
+]
+
+{ #category : #'code generation' }
+VCComponentSynthesizer >> localPrefix [
+	^ '_'
 ]
 
 { #category : #'code generation' }
@@ -163,7 +174,7 @@ VCComponentSynthesizer >> setVariable: variable value: value [
 	
 	variable isRegister ifTrue: [
 		variable clock ifNil: [ self error: 'Cannot assign register without a connected clock.' ].
-		self addRegister: variableName assignment: assignedValue onClock: (self declareValue: variable clock)
+		self addRegister: variableName bits: variable bits assignment: assignedValue onClock: (self declareValue: variable clock)
 		onReset: (variable reset ifNotNil: [ self declareValue: variable reset ])
 		resetActiveLow: variable isResetActiveLow
 		resetValue: (variable resetValue ifNotNil: [ self declareValue: variable resetValue ])

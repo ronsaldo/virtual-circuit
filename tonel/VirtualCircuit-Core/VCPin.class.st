@@ -49,5 +49,5 @@ VCPin >> isOutput [
 
 { #category : #'as yet unclassified' }
 VCPin >> localPrefix [
-	^ '_pin'
+	^ 'pin'
 ]

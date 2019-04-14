@@ -284,6 +284,11 @@ VCComponent >> verilogToFileNamed: fileName [
 ]
 
 { #category : #synthesis }
+VCComponent >> vhdl [
+	^ VCSynthesizerVHDL synthesize: self
+]
+
+{ #category : #synthesis }
 VCComponent >> vhdlToFileNamed: fileName [
 	| code |
 	code := self vhdl.

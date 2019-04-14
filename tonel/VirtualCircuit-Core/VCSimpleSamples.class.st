@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-VCSimpleSamples >> blinkingLeds [
+VCSimpleSamples class >> exampleBlinkingLeds [
 	| k m f periodBits count component |
 	k := 1000.
 	m := k*1000.
@@ -19,10 +19,14 @@ VCSimpleSamples >> blinkingLeds [
 		count := builder register: 32.
 		count value: count value + 1.
 
-		builder output: #leds bits: 4 value: (count bit: 1 + periodBits count: 4)
+		builder output: #led bits: 4 value: (count bit: 1 + periodBits count: 4)
 	].
 
 	component
 		vhdlToFileNamed: 'blinkingLeds.vhdl';
 		verilogToFileNamed: 'blinkingLeds.v'
+]
+
+{ #category : #'see class side' }
+VCSimpleSamples >> seeClassSide [
 ]

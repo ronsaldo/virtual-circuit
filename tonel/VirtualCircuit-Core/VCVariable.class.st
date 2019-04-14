@@ -34,7 +34,7 @@ VCVariable >> isVariable [
 
 { #category : #'as yet unclassified' }
 VCVariable >> localPrefix [
-	^ '_variable'
+	^ 'variable'
 ]
 
 { #category : #accessing }

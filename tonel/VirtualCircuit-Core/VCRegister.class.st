@@ -42,7 +42,7 @@ VCRegister >> isRegister [
 
 { #category : #'as yet unclassified' }
 VCRegister >> localPrefix [
-	^ '_register'
+	^ 'register'
 ]
 
 { #category : #testing }

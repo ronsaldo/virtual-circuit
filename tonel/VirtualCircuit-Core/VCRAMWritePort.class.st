@@ -62,7 +62,7 @@ VCRAMWritePort >> isWritePort [
 
 { #category : #'as yet unclassified' }
 VCRAMWritePort >> localPrefix [
-	^ '_ram_write_port'
+	^ 'ram_write_port'
 ]
 
 { #category : #accessing }

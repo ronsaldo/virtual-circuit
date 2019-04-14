@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'name',
+		'bits',
 		'value',
 		'clock',
 		'reset',
@@ -11,6 +12,16 @@ Class {
 	],
 	#category : #'VirtualCircuit-Core-Synthesis'
 }
+
+{ #category : #accessing }
+VCSynthRegisterAssignment >> bits [
+	^ bits
+]
+
+{ #category : #accessing }
+VCSynthRegisterAssignment >> bits: anObject [
+	bits := anObject
+]
 
 { #category : #accessing }
 VCSynthRegisterAssignment >> clock [

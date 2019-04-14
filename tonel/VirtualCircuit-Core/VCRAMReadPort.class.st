@@ -40,7 +40,7 @@ VCRAMReadPort >> isWritePort [
 
 { #category : #'as yet unclassified' }
 VCRAMReadPort >> localPrefix [
-	^ '_ram_read_port'
+	^ 'ram_read_port'
 ]
 
 { #category : #accessing }
