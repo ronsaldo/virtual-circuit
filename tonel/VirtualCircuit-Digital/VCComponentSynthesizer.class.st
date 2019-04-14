@@ -145,6 +145,11 @@ VCComponentSynthesizer >> localPrefix [
 	^ '_'
 ]
 
+{ #category : #visiting }
+VCComponentSynthesizer >> localRamModuleNamePrefix [
+	^ '_ram'
+]
+
 { #category : #'code generation' }
 VCComponentSynthesizer >> processOutputPin: outputPin [
 	self setVariable: outputPin value: [self declareValue: outputPin value]
@@ -278,7 +283,7 @@ VCComponentSynthesizer >> visitLogicalOperation: logicalOperation [
 VCComponentSynthesizer >> visitRAMModule: ramModule [
 	| ramModuleName ramPorts |
 	ramModuleName := instantiatedElements at: ramModule ifAbsentPut: [
-		self generateSymbolPrefix: (ramModule name ifNil: [ '_ram' ])
+		self generateSymbolPrefix: (ramModule name ifNil: [ self localRamModuleNamePrefix ])
 	].
 
 	ramPorts := ramModule ports collect: [ :port | self convertRAMPort: port ].

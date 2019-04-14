@@ -62,6 +62,41 @@ VCVHDLComponentSynthesizer >> emitBitPack: values [
 ]
 
 { #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitClockedProcesses: out [
+	| allClockAndResetPins |
+	registerAssignments ifEmpty: [ ^ self ].
+	
+	allClockAndResetPins := OrderedCollection new.
+	self flag: 'TODO: Use an ordered set.'.
+	registerAssignments do: [ :registerAssignment |
+		(allClockAndResetPins includes: registerAssignment clock) ifFalse: [ 
+			allClockAndResetPins add: registerAssignment clock
+		].
+		registerAssignment reset ifNotNil: [ 
+			(allClockAndResetPins includes: registerAssignment reset) ifFalse: [ 
+				allClockAndResetPins add: registerAssignment reset
+			]
+		].
+	].
+
+	out tab; nextPutAll: 'process ('.
+	allClockAndResetPins	doWithIndex: [ :pin :index |
+		index > 1 ifTrue: [ out nextPutAll: ', ' ].
+		out nextPutAll: pin
+	].
+	out
+		nextPutAll: ')'; lf;
+		tab; nextPutAll: 'begin'; lf.
+
+	self
+		emitRamProcesses: out;
+		emitRegisterAssignments: out.
+
+	out tab nextPutAll: 'end process;'; lf
+
+]
+
+{ #category : #'code generation' }
 VCVHDLComponentSynthesizer >> emitDeclarationsOf: elements into: out. [
 	elements do: [ :wire |
 		out tab; nextPutAll: 'signal '; nextPutAll: (instantiatedElements at: wire); nextPutAll: ' : '.
@@ -103,13 +138,14 @@ VCVHDLComponentSynthesizer >> emitFinalContent [
 		out nextPutAll: 'architecture RTL of '; nextPutAll: currentModule name; nextPutAll: ' is'; lf.
 		self emitWires: out.
 		self emitRegisters: out.
-"
-		self emitRamModules: out.
-"
+		self emitRamDeclarations: out.
+
 		out nextPutAll: 'begin'; lf.
-		self emitSubmodules: out.
-		self emitWireAssignments: out.
-		self emitRegisterAssignments: out.
+		self
+			emitSubmodules: out;
+			emitRamWiring: out;
+			emitWireAssignments: out;
+			emitClockedProcesses: out.
 		
 		out nextPutAll: 'end architecture RTL;'; lf
 	]
@@ -172,32 +208,74 @@ VCVHDLComponentSynthesizer >> emitLogicalOperation: operation operands: operands
 ]
 
 { #category : #'code generation' }
-VCVHDLComponentSynthesizer >> emitRegisterAssignments: out [
-	| allClockAndResetPins |
-	registerAssignments ifEmpty: [ ^ self ].
+VCVHDLComponentSynthesizer >> emitRAMReadPort: port clockedImplementationFor: ramModule into: out [
+	ramModule ram distributed ifFalse: [
+		out tab; tab; tab; nextPutAll: port name; nextPutAll: '_address <= '; nextPutAll: port address; nextPut: $;; lf.
+	].
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRAMReadPort: port unclockedImplementationFor: ram into: out [
+	out tab; nextPutAll: ('{1} <= {2}(to_integer(unsigned({3})));' format: {port name . ram memoryName .
+		ram ram distributed ifTrue: [ port address ] ifFalse: [port name , '_address']}); lf.
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRAMWritePort: port clockedImplementationFor: ram into: out [
+	out tab; tab; tab; nextPutAll: 'if '; nextPutAll: port enabled; nextPutAll: ' = ''1'' then'; lf.
+	out tab; tab; tab; tab; nextPutAll: ('{1}(to_integer(unsigned({2}))) <= {3};' format: {ram memoryName . port address . port value}); lf.
+	out tab; tab; tab; nextPutAll: 'end if;'; lf
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRAMWritePort: port unclockedImplementationFor: ramModule into: out [
 	
-	allClockAndResetPins := OrderedCollection new.
-	self flag: 'TODO: Use an ordered set.'.
-	registerAssignments do: [ :registerAssignment |
-		(allClockAndResetPins includes: registerAssignment clock) ifFalse: [ 
-			allClockAndResetPins add: registerAssignment clock
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRamDeclarations: out [
+	ramModules ifEmpty: [ ^ self ].
+	
+	out tab; nextPutAll: '-- RAM Modules'; lf.
+	out tab; nextPutAll: 'attribute ram_style: string;'; lf.
+	
+	ramModules do: [ :ramModule |
+		out tab; nextPutAll: ('type {1}_t is array (0 to {2}) of std_logic_vector({3} downto 0);'
+			format: {
+				ramModule memoryName.
+				ramModule ram size.
+				ramModule ram depth - 1.
+			}); lf.
+		out tab; nextPutAll: ('signal {1} : {1}_t := (others => (others => ''0''));' format: {ramModule memoryName}); lf.
+		out tab; nextPutAll: ('attribute ram_style of {1} : signal is "{2}";' format: {
+			ramModule memoryName.
+			ramModule ram distributed ifTrue: [ 'distributed' ] ifFalse: [ 'block' ]
+		}); lf 
+	]
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRamProcesses: out [
+	ramModules do: [ :ramModule |
+		out tab; tab; nextPutAll: 'if rising_edge( '; nextPutAll: ramModule clock; nextPutAll: ') then'; lf.
+		ramModule ports do: [ :port |
+			port emitClockedImplementationWith: self for: ramModule into: out
 		].
-		registerAssignment reset ifNotNil: [ 
-			(allClockAndResetPins includes: registerAssignment reset) ifFalse: [ 
-				allClockAndResetPins add: registerAssignment reset
-			]
+		out tab; tab; nextPutAll: 'end if;'; lf.
+	].
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRamWiring: out [
+	ramModules do: [ :ramModule |
+		ramModule ports do: [ :port |
+			port emitUnclockedImplementationWith: self for: ramModule into: out
 		].
 	].
+]
 
-	out tab; nextPutAll: 'process ('.
-	allClockAndResetPins	doWithIndex: [ :pin :index |
-		index > 1 ifTrue: [ out nextPutAll: ', ' ].
-		out nextPutAll: pin
-	].
-	out
-		nextPutAll: ')'; lf;
-		tab; nextPutAll: 'begin'; lf.
-
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitRegisterAssignments: out [
 	registerAssignments do: [ :registerAssignment |
 		registerAssignment reset ifNotNil: [ 
 			registerAssignment resetActiveLow ifTrue: [
@@ -232,8 +310,6 @@ VCVHDLComponentSynthesizer >> emitRegisterAssignments: out [
 			lf.
 		out tab; tab; nextPutAll: 'end if;'; lf
 	].
-
-	out tab nextPutAll: 'end process;'; lf
 
 ]
 
@@ -312,6 +388,11 @@ VCVHDLComponentSynthesizer >> emitWires: out [
 { #category : #'code generation' }
 VCVHDLComponentSynthesizer >> localPrefix [
 	^ 'ls_'
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> localRamModuleNamePrefix [
+	^ 'localRamModule_'
 ]
 
 { #category : #'code generation' }
