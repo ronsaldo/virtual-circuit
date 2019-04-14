@@ -327,18 +327,22 @@ BeaconCPUISA class >> declareOpcode: opcodeName type: opcodeType value: opcodeVa
 		opcode: opcodeValue;
 		name: opcodeName;
 		yourself).
-	self class compile:
+	Author useAuthor: 'VirtualCircuit' during: [ 
+		self class compile:
 ('{1}
 	^ {2}' format: {opcodeName asLowercase . opcodeName }) classified: 'opcodes'.
+	].
 	
 	^ self classVarNamed: opcodeName
 ]
 
 { #category : #initialization }
 BeaconCPUISA class >> declareRegisterAccessor: registerName [
-	self class compile:
+	Author useAuthor: 'VirtualCircuit' during: [ 
+		self class compile:
 ('{1}
 		^ {1}' format: {registerName }) classified: 'registers'
+	]
 ]
 
 { #category : #initialization }

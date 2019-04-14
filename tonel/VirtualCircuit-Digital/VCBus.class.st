@@ -17,9 +17,12 @@ VCBus class >> createPortVariable: variableName [
 	(self hasInstVarNamed: variableName) ifFalse: [
 		self addInstVarNamed: variableName
 	].
-	self compile: (
+	Author useAuthor: 'VirtualCircuit' during: [ 
+		self compile: (
 '{1}
 	^ {1}' format: { variableName }) classified: 'port accessors'
+	]
+
 ]
 
 { #category : #'bus description' }
@@ -77,7 +80,9 @@ VCBus class >> rebuildPortConnections [
 		]
 	].
 
-	self compile: createPortsSource classified: 'ports'
+	Author useAuthor: 'VirtualCircuit' during: [ 
+		self compile: createPortsSource classified: 'ports'
+	]
 ]
 
 { #category : #ports }
