@@ -283,6 +283,13 @@ VCComponent >> verilogToFileNamed: fileName [
 	fileName asFileReference writeStreamDo: [ :out | out truncate; nextPutAll: code ]
 ]
 
+{ #category : #synthesis }
+VCComponent >> vhdlToFileNamed: fileName [
+	| code |
+	code := self vhdl.
+	fileName asFileReference writeStreamDo: [ :out | out truncate; nextPutAll: code ]
+]
+
 { #category : #visualization }
 VCComponent >> visualize [
 	| view viewElements |

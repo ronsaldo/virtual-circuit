@@ -4,9 +4,19 @@ Class {
 	#category : #'VirtualCircuit-Core-Bus'
 }
 
+{ #category : #converting }
+VCMemoryBusMaster class >> asVCMemoryBusMasterInterface [
+	^ self new
+]
+
 { #category : #'as yet unclassified' }
 VCMemoryBusMaster class >> interfaceName [
 	self subclassResponsibility
+]
+
+{ #category : #converting }
+VCMemoryBusMaster >> asVCMemoryBusMasterInterface [
+	^ self
 ]
 
 { #category : #enumerating }

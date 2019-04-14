@@ -66,18 +66,18 @@ VCComponentInstance >> isComponentInstance [
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusMasterInterface: interfaceName [
-	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: ''
+VCComponentInstance >> memoryBusMasterInterface: interface [
+	^ self memoryBusMasterInterface: interface prefix: '' suffix: ''
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusMasterInterface: interfaceName prefix: prefix [
-	^ self memoryBusMasterInterface: interfaceName prefix: prefix suffix: ''
+VCComponentInstance >> memoryBusMasterInterface: interface prefix: prefix [
+	^ self memoryBusMasterInterface: interface prefix: prefix suffix: ''
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusMasterInterface: interfaceName prefix: prefix suffix: suffix [
-	^ (VCMemoryBusMaster subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+VCComponentInstance >> memoryBusMasterInterface: interface prefix: prefix suffix: suffix [
+	^ interface asVCMemoryBusMasterInterface
 		busPrefix: prefix;
 		busSuffix: suffix;
 		instance: self;
@@ -86,23 +86,23 @@ VCComponentInstance >> memoryBusMasterInterface: interfaceName prefix: prefix su
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusMasterInterface: interfaceName suffix: suffix [
-	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: suffix
+VCComponentInstance >> memoryBusMasterInterface: interface suffix: suffix [
+	^ self memoryBusMasterInterface: interface prefix: '' suffix: suffix
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusSlaveInterface: interfaceName [
-	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: ''
+VCComponentInstance >> memoryBusSlaveInterface: interface [
+	^ self memoryBusSlaveInterface: interface prefix: '' suffix: ''
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusSlaveInterface: interfaceName prefix: prefix [
-	^ self memoryBusSlaveInterface: interfaceName prefix: prefix suffix: ''
+VCComponentInstance >> memoryBusSlaveInterface: interface prefix: prefix [
+	^ self memoryBusSlaveInterface: interface prefix: prefix suffix: ''
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusSlaveInterface: interfaceName prefix: prefix suffix: suffix [
-	^ (VCMemoryBusSlave subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+VCComponentInstance >> memoryBusSlaveInterface: interface prefix: prefix suffix: suffix [
+	^ interface asVCMemoryBusSlaveInterface
 		busPrefix: prefix;
 		busSuffix: suffix;
 		instance: self;
@@ -111,8 +111,8 @@ VCComponentInstance >> memoryBusSlaveInterface: interfaceName prefix: prefix suf
 ]
 
 { #category : #bus }
-VCComponentInstance >> memoryBusSlaveInterface: interfaceName suffix: suffix [
-	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: suffix
+VCComponentInstance >> memoryBusSlaveInterface: interface suffix: suffix [
+	^ self memoryBusSlaveInterface: interface prefix: '' suffix: suffix
 ]
 
 { #category : #'as yet unclassified' }

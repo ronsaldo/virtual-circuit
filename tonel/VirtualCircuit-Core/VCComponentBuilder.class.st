@@ -23,8 +23,13 @@ VCComponentBuilder >> autoReset [
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> axiBusMaster [
-	^ VCAXIMemoryBusMaster new builder: self
+VCComponentBuilder >> axi4LiteBusMaster [
+	^ self memoryBusMasterInterface: VCAXI4LiteMemoryBusMaster
+]
+
+{ #category : #'memory bus' }
+VCComponentBuilder >> axi4LiteBusSlave [
+	^ self memoryBusMasterInterface: VCAXI4LiteMemoryBusSlave
 ]
 
 { #category : #registers }
@@ -102,18 +107,18 @@ VCComponentBuilder >> instance: aComponent [
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusMasterInterface: interfaceName [
-	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: ''
+VCComponentBuilder >> memoryBusMasterInterface: interface [
+	^ self memoryBusMasterInterface: interface prefix: '' suffix: ''
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusMasterInterface: interfaceName prefix: prefix [
-	^ self memoryBusMasterInterface: interfaceName prefix: prefix suffix: ''
+VCComponentBuilder >> memoryBusMasterInterface: interface prefix: prefix [
+	^ self memoryBusMasterInterface: interface prefix: prefix suffix: ''
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusMasterInterface: interfaceName prefix: prefix suffix: suffix [
-	^ (VCMemoryBusMaster subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+VCComponentBuilder >> memoryBusMasterInterface: interface prefix: prefix suffix: suffix [
+	^ interface asVCMemoryBusMasterInterface
 		busPrefix: prefix;
 		busSuffix: suffix;
 		builder: self;
@@ -121,23 +126,23 @@ VCComponentBuilder >> memoryBusMasterInterface: interfaceName prefix: prefix suf
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusMasterInterface: interfaceName suffix: suffix [
-	^ self memoryBusMasterInterface: interfaceName prefix: '' suffix: suffix
+VCComponentBuilder >> memoryBusMasterInterface: interface suffix: suffix [
+	^ self memoryBusMasterInterface: interface prefix: '' suffix: suffix
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusSlaveInterface: interfaceName [
-	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: ''
+VCComponentBuilder >> memoryBusSlaveInterface: interface [
+	^ self memoryBusSlaveInterface: interface prefix: '' suffix: ''
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusSlaveInterface: interfaceName prefix: prefix [
-	^ self memoryBusSlaveInterface: interfaceName prefix: prefix suffix: ''
+VCComponentBuilder >> memoryBusSlaveInterface: interface prefix: prefix [
+	^ self memoryBusSlaveInterface: interface prefix: prefix suffix: ''
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusSlaveInterface: interfaceName prefix: prefix suffix: suffix [
-	^ (VCMemoryBusSlave subclasses detect: [ :busClass | busClass interfaceName == interfaceName ]) new
+VCComponentBuilder >> memoryBusSlaveInterface: interface prefix: prefix suffix: suffix [
+	^ interface asVCMemoryBusSlaveInterface
 		busPrefix: prefix;
 		busSuffix: suffix;
 		builder: self;
@@ -145,8 +150,8 @@ VCComponentBuilder >> memoryBusSlaveInterface: interfaceName prefix: prefix suff
 ]
 
 { #category : #'memory bus' }
-VCComponentBuilder >> memoryBusSlaveInterface: interfaceName suffix: suffix [
-	^ self memoryBusSlaveInterface: interfaceName prefix: '' suffix: suffix
+VCComponentBuilder >> memoryBusSlaveInterface: interface suffix: suffix [
+	^ self memoryBusSlaveInterface: interface prefix: '' suffix: suffix
 ]
 
 { #category : #pins }

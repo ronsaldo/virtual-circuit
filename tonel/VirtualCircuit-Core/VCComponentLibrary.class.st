@@ -14,6 +14,7 @@ VCComponentLibrary class >> componentsCache [
 
 { #category : #'component cache' }
 VCComponentLibrary class >> flushAllComponentsCache [
+	<script>
 	self withAllSubclassesDo: #flushComponentCache
 ]
 

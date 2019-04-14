@@ -22,5 +22,7 @@ VCSimpleSamples >> blinkingLeds [
 		builder output: #leds bits: 4 value: (count bit: 1 + periodBits count: 4)
 	].
 
-	component verilogToFileNamed: 'blinkingLeds.v'
+	component
+		vhdlToFileNamed: 'blinkingLeds.vhdl';
+		verilogToFileNamed: 'blinkingLeds.v'
 ]

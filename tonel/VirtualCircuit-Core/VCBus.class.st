@@ -62,14 +62,14 @@ VCBus class >> rebuildPortConnections [
 			out tab; nextPutAll: port variableName ; nextPutAll: ' := '.
 			port direction == #input ifTrue: [
 				out nextPutAll: 'self input: '; nextPutAll: (self makePortName: port portName);
-					nextPutAll: ' bits: '; nextPutAll: port bits printString.  
+					nextPutAll: ' bits: '; nextPutAll: port bits asString.  
 			].
 
 			port direction == #output ifTrue: [
 				out nextPutAll: 'self output';
 					nextPutAll: ((port options includes: #register) ifTrue: [ 'Register: ' ] ifFalse: ': ');
 					nextPutAll: (self makePortName: port portName);
-					nextPutAll: ' bits: '; nextPutAll: port bits printString.  
+					nextPutAll: ' bits: '; nextPutAll: port bits asString.  
 				(port options includes: #register) ifTrue: [ 
 				]
 			].

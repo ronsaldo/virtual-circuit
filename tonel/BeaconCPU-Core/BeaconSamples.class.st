@@ -26,7 +26,9 @@ BeaconSamples class >> exampleSetLeds [
 	board cpu: cpu.
 	board saveConstraintsTo: 'beaconBoard.xdc'.
 
-	board component verilogToFileNamed: 'beaconBoard.v'
+	board component
+		vhdlToFileNamed: 'beaconBoard.vhdl';
+		verilogToFileNamed: 'beaconBoard.v'
 	
 ]
 
