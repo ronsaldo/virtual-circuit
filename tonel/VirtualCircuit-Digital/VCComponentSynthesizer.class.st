@@ -77,6 +77,11 @@ VCComponentSynthesizer >> emitBit: index count: count extract: wire [
 ]
 
 { #category : #'code generation' }
+VCComponentSynthesizer >> emitBit: bit repeat: count [
+	self subclassResponsibility
+]
+
+{ #category : #'code generation' }
 VCComponentSynthesizer >> emitBitPack: values [
 	self subclassResponsibility
 ]
@@ -266,7 +271,7 @@ VCComponentSynthesizer >> visitInstanceOutputPin: instanceOutputPin [
 
 { #category : #visiting }
 VCComponentSynthesizer >> visitLogicalOperation: logicalOperation [
-	^ self setVariableExpression: logicalOperation value: [ self emitLogicalOperation: logicalOperation operation operands: (logicalOperation operands collect: [ :op | self declareValue: op ]) ]
+	^ self setVariableExpression: logicalOperation value: [ self emitLogicalOperation: logicalOperation operation operands: logicalOperation operands ]
 ]
 
 { #category : #visiting }

@@ -66,6 +66,21 @@ VCExpression >> alignedDownTo: alignment [
 				(VCConstantInteger new value: 0; bits: discardedBits; yourself)  ]
 ]
 
+{ #category : #converting }
+VCExpression >> asVCElementFor: anOwner bits: bitCount [
+	| paddingSizeCount |
+	bits > bitCount ifTrue: [
+		^ self bit: 1 count: bitCount
+	].
+	bits < bitCount ifTrue: [
+		paddingSizeCount := bitCount - bits.
+		self assert: paddingSizeCount > 0.
+		^ (0 asVCElementFor: owner bits: paddingSizeCount) , self
+	].
+
+	^ self
+]
+
 { #category : #packing }
 VCExpression >> bit: bitIndex [
 	^ self bit: bitIndex count: 1

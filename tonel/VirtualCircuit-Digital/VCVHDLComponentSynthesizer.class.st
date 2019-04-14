@@ -12,15 +12,15 @@ Class {
 VCVHDLComponentSynthesizer class >> initialize [
 	super initialize.
 	UnaryOperationMap := Dictionary newFromPairs: #(
-		not ~
+		not not
 	).
 	BinaryOperationMap := Dictionary newFromPairs: #(
 		and and
 		or or
 		xor xor
-		lshift <<
-		lrshift >>
-		arshift >>>
+		lshift shift_left
+		lrshift shift_right
+		arshift shift_right
 		equals =
 		notEquals /=
 		
@@ -45,6 +45,23 @@ VCVHDLComponentSynthesizer >> emitBit: index count: count extract: wire [
 ]
 
 { #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitBit: bit repeat: count [
+	^ '(0 to {1} => {2})' format: { (count - 1) asString. bit }
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitBitPack: values [
+	^ ByteString streamContents: [ :out |
+		out nextPut: $(.
+		values doWithIndex: [ :value :index |
+			index > 1 ifTrue: [ out nextPutAll: ' & '. ].
+			out nextPutAll: value.
+		].
+		out nextPut: $).
+	]
+]
+
+{ #category : #'code generation' }
 VCVHDLComponentSynthesizer >> emitDeclarationsOf: elements into: out. [
 	elements do: [ :wire |
 		out tab; nextPutAll: 'signal '; nextPutAll: (instantiatedElements at: wire); nextPutAll: ' : '.
@@ -57,7 +74,13 @@ VCVHDLComponentSynthesizer >> emitDeclarationsOf: elements into: out. [
 VCVHDLComponentSynthesizer >> emitFinalContent [
 	^ ByteString streamContents: [ :out |
 
-		out nextPutAll: '-- Module '; nextPutAll: currentModule name; lf.
+		out
+			nextPutAll: '-- Module '; nextPutAll: currentModule name; lf;
+			nextPutAll: 'library IEEE;'; lf;
+			nextPutAll: 'use IEEE.std_logic_1164.all;'; lf;
+			nextPutAll: 'use IEEE.numeric_std.all;'; lf;
+			lf.
+			
 		out nextPutAll: 'entity '; nextPutAll: currentModule name; nextPutAll: ' is'; lf;
 			tab; nextPutAll: 'port ('; lf.
 
@@ -80,10 +103,11 @@ VCVHDLComponentSynthesizer >> emitFinalContent [
 		out nextPutAll: 'architecture RTL of '; nextPutAll: currentModule name; nextPutAll: ' is'; lf.
 		self emitWires: out.
 		self emitRegisters: out.
-"		self emitSubmodules: out.
+"
 		self emitRamModules: out.
 "
 		out nextPutAll: 'begin'; lf.
+		self emitSubmodules: out.
 		self emitWireAssignments: out.
 		self emitRegisterAssignments: out.
 		
@@ -111,16 +135,38 @@ VCVHDLComponentSynthesizer >> emitIntegerConstant: aConstant [
 
 { #category : #'code generation' }
 VCVHDLComponentSynthesizer >> emitLogicalOperation: operation operands: operands [
+	| format |
 	operands size = 1 ifTrue: [ 
-		^ (UnaryOperationMap at: operation) , operands first
+		^ (UnaryOperationMap at: operation) , ' ' , (self declareValue: operands first)
 	].
-	operands size = 2 ifTrue: [ 
-		(#(+ - * /) includes: operation) ifTrue: [ 
-			^ 'std_logic_vector(unsigned({1}) {2} unsigned({3}))' format: { 
-				operands first . BinaryOperationMap at: operation . operands second
-			}
+	operands size = 2 ifTrue: [
+		format := '{1} {2} {3}'.
+		(#(+ - * /) includes: operation) ifTrue: [
+			operation = #* ifTrue: [ 
+				self flag: 'FIXME: Use the actual number of expected result bits here.'.
+				format := 'std_logic_vector(resize(unsigned({1}) {2} unsigned({3}), ' , operands first bits asString , '))'
+			] ifFalse: [ 
+				format := 'std_logic_vector(unsigned({1}) {2} unsigned({3}))'
+			]
 		].
-		^ operands first , ' ' , (BinaryOperationMap at: operation) , ' ' , operands second
+	
+		(#(lshift lrshift) includes: operation) ifTrue: [ 
+			format := 'std_logic_vector({2}(unsigned({1}), to_integer(unsigned({3}))))'
+		].
+
+		(#arshift = operation) ifTrue: [ 
+			format := 'std_logic_vector({2}(signed({1}), to_integer(unsigned({3}))))'
+		].
+
+		(#(equals notEquals) includes: operation) ifTrue: [
+			format := '''1'' when {1} {2} {3} else ''0'''
+		].
+
+		^ format format: { 
+				self declareValue: operands first .
+				BinaryOperationMap at: operation .
+				self declareValue: operands second
+			}.
 	].
 	self error: 'Unsupported logical operation arity.'
 ]
@@ -193,11 +239,40 @@ VCVHDLComponentSynthesizer >> emitRegisterAssignments: out [
 
 { #category : #'code generation' }
 VCVHDLComponentSynthesizer >> emitRegisters: out [
-	registers ifNotNil: [ 
+	registers ifNotEmpty: [ 
 		out tab; nextPutAll: '-- Registers'; lf
 	].
 
 	self emitDeclarationsOf: registers into: out.
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitSelectCondition: condition trueValue: trueValue falseValue: falseValue [
+	^ '{2} when {1} = ''1'' else {3}' format: { condition . trueValue . falseValue }
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitSubmodule: submodule into: out [
+	| instanceName module |
+	module := instantiatedElements at: submodule baseComponent.
+	instanceName := instantiatedElements at: submodule.
+	out nextPutAll: instanceName; nextPutAll: ' : entity work.'; nextPutAll: module name;
+		nextPutAll: ' port map('; lf.
+		
+	submodule pins doWithIndex: [ :pin :index|
+		index > 1 ifTrue: [ out nextPut: $,; lf ].
+		out tab; tab; nextPutAll: pin name; nextPutAll: ' => '; nextPutAll: (instantiatedElements at: pin)
+	].
+	out nextPutAll: ');'; lf.
+]
+
+{ #category : #'code generation' }
+VCVHDLComponentSynthesizer >> emitSubmodules: out [
+	submodules do: [ :submodule |
+		self emitSubmodule: submodule into: out
+	].
+	submodules ifNotEmpty: [ out lf ].
+
 ]
 
 { #category : #'code generation' }
@@ -228,7 +303,7 @@ VCVHDLComponentSynthesizer >> emitWireAssignments: out [
 
 { #category : #'code generation' }
 VCVHDLComponentSynthesizer >> emitWires: out [
-	wires ifNotNil: [ 
+	wires ifNotEmpty: [ 
 		out tab; nextPutAll: '-- Wires'; lf
 	].
 	self emitDeclarationsOf: wires into: out.

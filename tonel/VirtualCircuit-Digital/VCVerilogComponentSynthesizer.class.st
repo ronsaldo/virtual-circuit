@@ -122,10 +122,10 @@ VCVerilogComponentSynthesizer >> emitIntegerConstant: aConstant [
 { #category : #'code generation' }
 VCVerilogComponentSynthesizer >> emitLogicalOperation: operation operands: operands [
 	operands size = 1 ifTrue: [ 
-		^ (UnaryOperationMap at: operation) , operands first
+		^ (UnaryOperationMap at: operation) , (self declareValue: operands first)
 	].
 	operands size = 2 ifTrue: [ 
-		^ operands first , (BinaryOperationMap at: operation) , operands second
+		^ (self declareValue: operands first) , (BinaryOperationMap at: operation) , (self declareValue: operands second)
 	].
 	self error: 'Unsupported logical operation arity.'
 ]

@@ -32,7 +32,7 @@ VCRegister >> hasReset [
 { #category : #initialization }
 VCRegister >> initialize [
 	"Registers by default tend to keep their values."
-	self value: self
+	value := self
 ]
 
 { #category : #testing }

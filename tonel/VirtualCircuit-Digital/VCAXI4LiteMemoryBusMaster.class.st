@@ -53,7 +53,6 @@ VCAXI4LiteMemoryBusMaster class >> portDesc [
 		(readData input S_AXI_RDATA dataBusSize)
 		(readValid input S_AXI_RVALID 1)
 		(readReady output S_AXI_RREADY 1 (register))
-		(readResponse input S_AXI_RRESP 1)
 		
 		"Write Address"
 		(writeAddress output S_AXI_AWADDR addressBusSize (register))
@@ -92,7 +91,6 @@ VCAXI4LiteMemoryBusMaster >> createPorts [
 	readData := self input: (self makePortName: #S_AXI_RDATA) bits: dataBusSize.
 	readValid := self input: (self makePortName: #S_AXI_RVALID) bits: 1.
 	readReady := self outputRegister: (self makePortName: #S_AXI_RREADY) bits: 1.
-	readResponse := self input: (self makePortName: #S_AXI_RRESP) bits: 1.
 	writeAddress := self outputRegister: (self makePortName: #S_AXI_AWADDR) bits: addressBusSize.
 	writeAddressValid := self outputRegister: (self makePortName: #S_AXI_AWVALID) bits: 1.
 	writeAddressReady := self input: (self makePortName: #S_AXI_AWREADY) bits: 1.
@@ -243,11 +241,6 @@ VCAXI4LiteMemoryBusMaster >> readData [
 { #category : #'port accessors' }
 VCAXI4LiteMemoryBusMaster >> readReady [
 	^ readReady
-]
-
-{ #category : #'port accessors' }
-VCAXI4LiteMemoryBusMaster >> readResponse [
-	^ readResponse
 ]
 
 { #category : #'port accessors' }
