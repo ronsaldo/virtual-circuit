@@ -17,6 +17,6 @@ BaselineOfVirtualCircuit >> baseline: spec [
 			package: 'VirtualCircuit-Analog';
 			package: 'VirtualCircuit-Digital';
 			package: 'VirtualCircuit-BeaconCPUExample' with: [
-				spec required: #('SAsm')]
+				spec requires: #('SAsm')]
 	]
 ]
