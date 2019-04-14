@@ -45,6 +45,8 @@ exampleBlinkingLeds
 		verilogToFileNamed: 'blinkingLeds.v'
 ```
 
+A video of this example running in the original Digilent Arty rev C board is available at: https://youtu.be/F1S18aNiXh8
+
 ### 64 bits simplistic CPU construction
 
 A more complicated example in **BeaconSamples class >> exampleSetLeds** is the
